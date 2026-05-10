@@ -14,38 +14,14 @@
 #include <nRF24L01.h> // библиотека для nRF24L01+
 #include <RF24.h>     // библиотека для радио модуля
 
+// Подключаем прием команд из последовательного порта
 #include "gcom_Serial.h"    // приём команд из последовательного порта
 #include "mcom_nrf24l01.h"  // выполнение команд модулем nRF24L01+
-
-RF24 radio(6,7);    
-const uint8_t num_channels = 128;
-uint8_t values[num_channels];
-
-int serial_putc(char c, FILE *) 
-{
-  Serial.write(c);
-  return c;
-}
-
-void printf_begin(void) 
-{
-  fdevopen(&serial_putc, 0);
-}
 
 void setup(void)
 {
   Serial.begin(9600);
-  
-  Serial.println(""); 
-  printf_begin();
-  radio.begin();
-  radio.setAutoAck(false);
-  radio.startListening();  // включаем прием сигнала
-  radio.printDetails();    // если правильно соединили, то увидите настройки модуля
-  delay(10000);            // задержка на 10 секунд
-  radio.stopListening();   // выключаем прием сигнала
-  Serial.println(""); 
-
+  Serial.println("\n\r=== entry.ino ==="); 
 
 
   /*
@@ -79,39 +55,41 @@ const int num_delmks = 128;
 
 void loop(void)
 {
-
-  gcSerial();
-
-  /*
-  // Пробегаем по каналам заданное число раз и 
-  // подсчитываем, сколько раз был сигнал на каждом канале
-  memset(values, 0, sizeof(values));
-  int rep_counter = num_reps;
-  while (rep_counter--) 
+  // Если команды из последовательного порта разрешают
+  // выполнение фонового цикла, то выполняем цикл
+  if (gcSerial()<0)
   {
-    int i = num_channels;
-    while (i--) 
+
+    /*
+    // Пробегаем по каналам заданное число раз и 
+    // подсчитываем, сколько раз был сигнал на каждом канале
+    memset(values, 0, sizeof(values));
+    int rep_counter = num_reps;
+    while (rep_counter--) 
     {
-      radio.setChannel(i);
-      radio.startListening(); // включаем прием сигнала
-      delayMicroseconds(num_delmks);
-      radio.stopListening();  // выключаем прием сигнала
-      if (radio.testCarrier()) ++values[i];
+      int i = num_channels;
+      while (i--) 
+      {
+        radio.setChannel(i);
+        radio.startListening(); // включаем прием сигнала
+        delayMicroseconds(num_delmks);
+        radio.stopListening();  // выключаем прием сигнала
+        if (radio.testCarrier()) ++values[i];
+      }
     }
-  }
 
-  int i = 0;
-  while (i < num_channels) 
-  {
-    printf("%x", min(0xf, values[i] & 0xf));
-    ++i;
+    int i = 0;
+    while (i < num_channels) 
+    {
+      printf("%x", min(0xf, values[i] & 0xf));
+      ++i;
+    }
+    printf("\n\r");
+    */
+  
+    Serial.print("."); 
+    delay(1000);
   }
-  printf("\n\r");
-  */
-  
-  Serial.print("."); 
-  delay(1000);
-  
 }
 
 // ******************************** proverka-rabotosposobnosti-nrf24l01.ino ***
