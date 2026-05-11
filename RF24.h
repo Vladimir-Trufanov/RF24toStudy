@@ -237,6 +237,8 @@ public:
      *
      * Creates a new instance of this driver.  Before using, you create an instance
      * and send in the unique pins that this chip is connected to.
+     * Создает новый экземпляр этого драйвера.  Перед использованием вы создаете экземпляр 
+     * и отправляете уникальные контакты, к которым подключен этот чип.
      *
      * See [Related Pages](pages.html) for device specific information
      *
