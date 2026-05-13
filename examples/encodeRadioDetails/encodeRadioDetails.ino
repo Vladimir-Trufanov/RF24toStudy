@@ -5,21 +5,22 @@
 */
 
 /**
-  A simple example of getting debug info from the nRF24L01 transceiver.
+  Простой пример получения отладочной информации от приемопередатчика nRF24L01.
 
-  This example was written to demonstrate alternative methods to get debugging data.
-  1. radio.encodeRadioDetails() will provide a data dump of all the nRF24L01's registers.
-  2. radio.sprintfPrettyDetails() will behave similarly to printPrettyDetails(), but it
-     outputs to a char buffer that can be printed to any Serial (or other output) stream.
+  Этот пример был написан для демонстрации альтернативных методов получения отладочных данных.
+  1. radio.encodeRadioDetails()   предоставляет дамп данных всех регистров nRF24L01.
+  2. radio.sprintfPrettyDetails() работает аналогично функции  printPrettyDetails(), но выводит данные в буфер 
+     символов, который может быть напечатан в любом последовательном (или другом выходном) потоке.
 
-  Additionally, this example will show all default configuration values.
+  Кроме того, в этом примере будут показаны все значения конфигурации по умолчанию.
 */
+
 #include <SPI.h>
 #include "RF24.h"
 
-#define CE_PIN 7
-#define CSN_PIN 8
 // instantiate an object for the nRF24L01 transceiver
+#define CE_PIN 6
+#define CSN_PIN 7
 RF24 radio(CE_PIN, CSN_PIN);
 
 /*
@@ -27,31 +28,40 @@ RF24 radio(CE_PIN, CSN_PIN);
   radio details encoded with RF24::encodeRadioDetails().
   It is meant to be decoded by an external program.
 
-  There is a python script located in this example's folder that
-  will take a space-delimited string of hexadecimal characters and
-  decode then print it out as human readable information.
+  В этом примере используется буфер данных, содержащий сведения о радиосвязи, 
+  закодированные с помощью RF24::encodeRadioDetails().
+  Предполагается, что это будет определено внешней программой.
+
+  В этой папке примеров находится скрипт на python, который
+  берет строку шестнадцатеричных символов, разделенную пробелами, и
+  декодирует ее, а затем распечатывает в виде информации, доступной для чтения человеком.
 */
 uint8_t encoded_details[43] = { 0 };
 
 // Use this function to print out the encoded_details as a
 // space-delimited string of hexadecimal characters.
-void dumpRegData() {
-  for (uint8_t i = 0; i < 43; ++i) {
+void dumpRegData() 
+{
+  for (uint8_t i = 0; i < 43; ++i) 
+  {
     Serial.print(encoded_details[i], HEX);
     if (i < 42)
       Serial.print(F(" "));
   }
 }
 
-void setup() {
+void setup() 
+{
 
-  Serial.begin(115200);
-  while (!Serial) {
+  Serial.begin(9600);
+  while (!Serial) 
+  {
     // some boards need to wait to ensure access to serial over USB
   }
 
   // initialize the transceiver on the SPI bus
-  if (!radio.begin()) {
+  if (!radio.begin()) 
+  {
     Serial.println(F("radio hardware is not responding!!"));
     while (1) {}  // hold in infinite loop
   }
@@ -60,7 +70,8 @@ void setup() {
   Serial.println(F("RF24/examples/encodedRadioDetails"));
 
   Serial.println(F("Press any key to show debugging information"));
-  while (!Serial.available()) {
+  while (!Serial.available()) 
+  {
     // wait for user input
   }
 
@@ -118,6 +129,7 @@ void setup() {
   42:    SPI speed MHz | (isPlusVariant << 4)
 */
 
-void loop() {
+void loop() 
+{
   // Nothing to do here. We did it all at the end of setup()
 }

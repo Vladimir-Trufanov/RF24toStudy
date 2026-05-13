@@ -1,19 +1,18 @@
 
 /*
-  Getting Started example sketch for nRF24L01+ radios
-  This is a very basic example of how to send data from one node to another
-  but modified to include failure handling.
+  Примерный эскиз для радиостанций nRF24L01+
+  Это очень простой пример того, как отправлять данные с одного узла на другой, но измененный, чтобы включить обработку сбоев.
 
-  The nrf24l01+ radios are fairly reliable devices, but on breadboards etc, with inconsistent wiring, failures may
-  occur randomly after many hours to days or weeks. This sketch demonstrates how to handle the various failures and
-  keep the radio operational.
+  Радиоприемники nrf24l01+ являются достаточно надежными устройствами, но на макетных платах и т.д. с несогласованной проводкой сбои могут
+  возникать случайным образом по прошествии многих часов, дней или недель. На этом примере показано, как справляться с различными сбоями и
+  поддерживать радиоприемник в рабочем состоянии.
 
-  The three main failure modes of the radio include:
-  Writing to radio: Radio unresponsive - Fixed internally by adding a timeout to the internal write functions in RF24 (failure handling)
-  Reading from radio: Available returns true always - Fixed by adding a timeout to available functions by the user. This is implemented internally in  RF24Network.
-  Radio configuration settings are lost - Fixed by monitoring a value that is different from the default, and re-configuring the radio if this setting reverts to the default.
+  К трем основным режимам неисправности радиоприемника относятся:
+  Запись на радио: Радио не отвечает - исправлено путем добавления таймаута к внутренним функциям записи в RF24 (обработка сбоев)
+  Чтение с радио: Доступно всегда возвращает значение true - Исправлено путем добавления таймаута к доступным функциям пользователем. Это реализовано внутри сети RF24Network.
+  Потеряны настройки конфигурации радиостанции - исправлено путем отслеживания значения, отличающегося от значения по умолчанию, и повторной настройки радиостанции, если это значение возвращается к значению по умолчанию.
 
-  The printDetails output should appear as follows for radio #0:
+  Для радио #0 вывод сведений должен выглядеть следующим образом:
 
   STATUS         = 0x0e RX_DR=0 TX_DS=0 MAX_RT=0 RX_P_NO=7 TX_FULL=0
   RX_ADDR_P0-1   = 0x65646f4e31 0x65646f4e32
@@ -31,8 +30,6 @@
   CRC Length     = 16 bits
   PA Power       = PA_LOW
 
-  Users can use this sketch to troubleshoot radio module wiring etc. as it makes the radios hot-swappable
-
   Updated: 2019 by TMRh20
 */
 
@@ -41,61 +38,57 @@
 #include "printf.h"
 
 /****************** User Config ***************************/
-/***      Set this radio as radio number 0 or 1         ***/
-bool radioNumber = 0;
-
-/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
-RF24 radio(7, 8);
-/**********************************************************/
-
+#define CE_PIN 6
+#define CSN_PIN 7
+RF24 radio(CE_PIN, CSN_PIN);
 byte addresses[][6] = { "1Node", "2Node" };
 
+// Set this radio as radio number 0 or 1
 // Used to control whether this node is sending or receiving
-bool role = 0;
-
+//bool radioNumber = 0;   // для 1 контроллера
+//bool role = 0;          // для 1 контроллера
+bool radioNumber = 1;  // для 2 контроллера
+bool role = 1;         // для 2 контроллера
 
 /**********************************************************/
-//Function to configure the radio
-void configureRadio() {
 
+// Функция настройки радио
+void configureRadio() 
+{
   radio.begin();
-
-  // Set the PA Level low to prevent power supply related issues since this is a
-  // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
+  // Устанавливаем низкий уровень мощности, чтобы предотвратить проблемы, связанные с питанием, 
+  // поскольку, скорее всего, устройства расположены близко. Значение по умолчанию - RF24_PA_MAX.
   radio.setPALevel(RF24_PA_LOW);
-
   // Open a writing and reading pipe on each radio, with opposite addresses
-  if (radioNumber) {
+  if (radioNumber) 
+  {
     radio.openWritingPipe(addresses[1]);
     radio.openReadingPipe(1, addresses[0]);
-  } else {
+  } 
+  else 
+  {
     radio.openWritingPipe(addresses[0]);
     radio.openReadingPipe(1, addresses[1]);
   }
-
   // Start the radio listening for data
   radio.startListening();
   radio.printDetails();
 }
 
-
-/**********************************************************/
-
-void setup() {
+void setup() 
+{
   Serial.begin(115200);
   Serial.println(F("RF24/examples/GettingStarted"));
-  Serial.println(F("*** PRESS 'T' to begin transmitting to the other node"));
-
   printf_begin();
-
   configureRadio();
 }
 
 uint32_t configTimer = millis();
 
-void loop() {
-
-  if (radio.failureDetected) {
+void loop() 
+{
+  if (radio.failureDetected) 
+  {
     radio.failureDetected = false;
     delay(250);
     Serial.println("Radio failure detected, restarting radio");
@@ -103,28 +96,26 @@ void loop() {
   }
   // Every 5 seconds, verify the configuration of the radio. This can be
   // done using any setting that is different from the radio defaults.
-  if (millis() - configTimer > 5000) {
+  if (millis() - configTimer > 5000) 
+  {
     configTimer = millis();
-    if (radio.getDataRate() != RF24_1MBPS) {
+    if (radio.getDataRate() != RF24_1MBPS) 
+    {
       radio.failureDetected = true;
       Serial.print("Radio configuration error detected");
     }
   }
 
-
   /****************** Ping Out Role ***************************/
-
-  if (role == 1) {
-
+  if (role == 1) 
+  {
     radio.stopListening();  // First, stop listening so we can talk.
-
     Serial.println(F("Now sending"));
-
     unsigned long start_time = micros();  // Take the time, and send it.  This will block until complete
-    if (!radio.write(&start_time, sizeof(unsigned long))) {
+    if (!radio.write(&start_time, sizeof(unsigned long))) 
+    {
       Serial.println(F("failed"));
     }
-
     radio.startListening();  // Now, continue listening
 
     unsigned long started_waiting_at = micros();  // Set up a timeout period, get the current microseconds
@@ -139,19 +130,22 @@ void loop() {
       }
     }
 
-    if (timeout) {
+    if (timeout) 
+    {
       // Describe the results
       Serial.println(F("Failed, response timed out."));
-    } else {
+    } 
+    else 
+    {
       // Grab the response, compare, and send to debugging spew
-
       unsigned long got_time;  // Variable for the received timestamp
 
       // Failure Handling
       uint32_t failTimer = millis();
       while (radio.available())  // If available() always returns true, there is a problem
       {
-        if (millis() - failTimer > 250) {
+        if (millis() - failTimer > 250) 
+        {
           radio.failureDetected = true;
           Serial.println("Radio available failure detected");
           break;
@@ -176,7 +170,8 @@ void loop() {
 
   /****************** Pong Back Role ***************************/
 
-  if (role == 0) {
+  if (role == 0) 
+  {
     unsigned long got_time;  // Variable for the received timestamp
 
     if (radio.available()) {
