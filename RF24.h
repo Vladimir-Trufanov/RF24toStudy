@@ -1424,35 +1424,37 @@ public:
 
 #if defined(FAILURE_HANDLING)
     /**
-     *
-     * If a failure has been detected, it usually indicates a hardware issue. By default the library
-     * will cease operation when a failure is detected.
-     * This should allow advanced users to detect and resolve intermittent hardware issues.
-     *
-     * In most cases, the radio must be re-enabled via radio.begin(); and the appropriate settings
-     * applied after a failure occurs, if wanting to re-enable the device immediately.
-     *
-     * The three main failure modes of the radio include:
-     *
-     * 1. Writing to radio: Radio unresponsive
-     *     - Fixed internally by adding a timeout to the internal write functions in RF24 (failure handling)
-     * 2. Reading from radio: Available returns true always
-     *     - Fixed by adding a timeout to available functions by the user. This is implemented internally in  RF24Network.
-     * 3. Radio configuration settings are lost
-     *     - Fixed by monitoring a value that is different from the default, and re-configuring the radio if this setting reverts to the default.
-     *
-     * See the included example, GettingStarted_HandlingFailures
+     * Если обнаружен сбой, это обычно указывает на проблему с оборудованием. 
+     * По умолчанию библиотека прекращает работу при обнаружении сбоя.
+     * Это должно позволить опытным пользователям обнаруживать и устранять 
+     * периодические проблемы с оборудованием.
+     * 
+     * В большинстве случаев радиоприемник необходимо повторно включить с помощью 
+     * функции radio.begin(), а также применить соответствующие настройки после 
+     * возникновения сбоя, если вы хотите немедленно снова включить устройство.
+     * 
+     * Три основных режима сбоя в работе радиоприемника включают в себя:
+     * 1. Запись на радио: радио не отвечает - исправлено внутренне путем добавления 
+     * таймаута к внутренним функциям записи в RF24 (обработка сбоев).
+     * 2. При чтении с радиостанции: функция Available всегда возвращает значение true -
+     * исправлено путем добавления пользователем тайм-аута для доступных функций. 
+     * Это реализовано внутри RF24Network.
+     * 3. Настройки конфигурации радиостанции потеряны - исправлено путем отслеживания 
+     * значения, отличающегося от значения по умолчанию, и повторной настройки радиостанции, 
+     * если это значение возвращается по умолчанию.
+     * 
+     * Смотрите прилагаемый пример: GettingStarted_HandlingFailures
      *
      * @code
      * if(radio.failureDetected) {
-     *   radio.begin();                          // Attempt to re-configure the radio with defaults
-     *   radio.failureDetected = 0;              // Reset the detection value
-     *   radio.openWritingPipe(addresses[1]);    // Re-configure pipe addresses
+     *   radio.begin();                          // перенастроили радиоприемник на значения по умолчанию
+     *   radio.failureDetected = 0;              // сбросили обнаруженное значение 
+     *   radio.openWritingPipe(addresses[1]);    // переконфигурировали каналы (трубы)
      *   radio.openReadingPipe(1, addresses[0]);
      *   report_failure();                       // Blink LEDs, send a message, etc. to indicate failure
      * }
      * @endcode
-     */
+     **/
     bool failureDetected;
     uint16_t failureRecoveryAttempts;
 

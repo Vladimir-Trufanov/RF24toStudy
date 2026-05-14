@@ -31,6 +31,20 @@
 #include "RF24.h"
 #include "printf.h"
 
+/*
+Arduino UNO                        NRF24L01
+-----------------------------------------------
+13 [SCK]               ==>         [SCK]
+12 [MISO]              ==>         [MISO]
+11 [MOSI]              ==>         [MOSI]
+7  [CE_PIN]            ==>         [CSN]
+6  [CSN_PIN]           ==>         [CE]
+*/
+
+// Определяем переменные контакты контроллера для подключения к радиомодулю
+#define CE_PIN 6   // номер контакта контроллера для подключения к пину CE радиомодуля
+#define CSN_PIN 7  // номер контакта контроллера для подключения к пину CSN радиомодуля
+
 // Назначаем радиомодуль на приём
 bool radioNumber = 0;   // false для 1 контроллера (приемника)
 // Подключаем локальные рабочие функции радиомодуля
@@ -44,30 +58,15 @@ void setup()
   configureRadio();
 }
 
-uint32_t configTimer = millis();
-
 void loop() 
 {
-  if (radio.failureDetected) 
-  {
-    radio.failureDetected = false;
-    delay(250);
-    Serial.println("Radio failure detected, restarting radio");
-    configureRadio();
-  }
-  // Every 5 seconds, verify the configuration of the radio. This can be
-  // done using any setting that is different from the radio defaults.
-  if (millis() - configTimer > 5000) 
-  {
-    configTimer = millis();
-    if (radio.getDataRate() != RF24_1MBPS) 
-    {
-      radio.failureDetected = true;
-      Serial.print("Radio configuration error detected");
-    }
-  }
+  // Перезапускаем сеанс связи при обнаружении сбоя, проблемы с оборудованием  
+  radio_failure_restarting();
+  // Перепроверяем конфигурацию радиомодуля  
+  verify_configuration_radio(); 
 
-  unsigned long got_time;  // Variable for the received timestamp
+  // Определяем переменную для полученной временной метки
+  unsigned long got_time; 
 
   if (radio.available()) 
   {
@@ -77,17 +76,17 @@ void loop()
     {
       if (millis() - failTimer > 500) 
       {
-        Serial.println("Radio available failure detected");
+        Serial.println("Обнаружена задержка радиосвязи");
         radio.failureDetected = true;
         break;
       }
-      radio.read(&got_time, sizeof(unsigned long));  // Get the payload
+      radio.read(&got_time, sizeof(unsigned long));  // получили полезную нагрузку
     }
 
-    radio.stopListening();                          // First, stop listening so we can talk
-    radio.write(&got_time, sizeof(unsigned long));  // Send the final one back.
-    radio.startListening();                         // Now, resume listening so we catch the next packets.
-    Serial.print(F("Sent response "));
+    radio.stopListening();                           // отключили прослушивание для обратной передачи
+    radio.write(&got_time, sizeof(unsigned long));   // отправили последнее сообщение обратно
+    radio.startListening();                          // возобновляем прослушивание для приема следующих пакетов
+    Serial.print(F("Ответ передатчику: "));
     Serial.println(got_time);
   }
 } 

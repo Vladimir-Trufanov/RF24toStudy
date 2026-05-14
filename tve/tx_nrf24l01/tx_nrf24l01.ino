@@ -31,42 +31,24 @@
 #include "RF24.h"
 #include "printf.h"
 
+/*
+Arduino Nano                       NRF24L01
+-----------------------------------------------
+13 [SCK]               ==>         [SCK]
+12 [MISO]              ==>         [MISO]
+11 [MOSI]              ==>         [MOSI]
+7  [CE_PIN]            ==>         [CSN]
+6  [CSN_PIN]           ==>         [CE]
+*/
+
+// Определяем переменные контакты контроллера для подключения к радиомодулю
+#define CE_PIN 6   // номер контакта контроллера для подключения к пину CE радиомодуля
+#define CSN_PIN 7  // номер контакта контроллера для подключения к пину CSN радиомодуля
+
 // Назначаем радиомодуль на передачу
 bool radioNumber = 1;   // true для 2 контроллера (передатчика)
 // Подключаем локальные рабочие функции радиомодуля
 #include "nRF24L01_tve.h"
-
-/*
-// Функция настройки радио
-void configureRadio() 
-{
-  radio.begin();
-  // Устанавливаем низкий уровень мощности (PA — Power Amplifier), чтобы предотвратить проблемы, 
-  // связанные с питанием, поскольку устройства расположены близко. Значение по умолчанию - RF24_PA_MAX.
-  // Константы, соответствующие разным уровням мощности в дБм: RF24_PA_MIN — −18 дБм; RF24_PA_LOW — −12 дБм; 
-  // RF24_PA_HIGH — -6 дБм; RF24_PA_MAX — 0 дБм (максимальная мощность).
-  radio.setPALevel(RF24_PA_MIN);
-  // По умолчанию модуль NRF24L01 работает на передающем канале 76h. 
-  // Частотный диапазон модуля NRF24L01 разбит на 128 каналов с шагом 1 МГц: от 2,4 ГГц до 2,527 ГГц. 
-  // Например, каналу 0 соответствует частота 2,4 ГГц, а каналу 37 — частота 2,437 ГГц. 
-  radio.setChannel(0x6F); // установили канал
-
-  // Open a writing and reading pipe on each radio, with opposite addresses
-  if (radioNumber) 
-  {
-    radio.openWritingPipe(addresses[1]);
-    radio.openReadingPipe(1, addresses[0]);
-  } 
-  else 
-  {
-    radio.openWritingPipe(addresses[0]);
-    radio.openReadingPipe(1, addresses[1]);
-  }
-  // Start the radio listening for data
-  radio.startListening();
-  radio.printDetails();
-}
-*/
 
 void setup() 
 {
@@ -76,28 +58,12 @@ void setup()
   configureRadio();
 }
 
-uint32_t configTimer = millis();
-
 void loop() 
 {
-  if (radio.failureDetected) 
-  {
-    radio.failureDetected = false;
-    delay(250);
-    Serial.println("Radio failure detected, restarting radio");
-    configureRadio();
-  }
-  // Every 5 seconds, verify the configuration of the radio. This can be
-  // done using any setting that is different from the radio defaults.
-  if (millis() - configTimer > 5000) 
-  {
-    configTimer = millis();
-    if (radio.getDataRate() != RF24_1MBPS) 
-    {
-      radio.failureDetected = true;
-      Serial.print("Radio configuration error detected");
-    }
-  }
+  // Перезапускаем сеанс связи при обнаружении сбоя, проблемы с оборудованием  
+  radio_failure_restarting();
+  // Перепроверяем конфигурацию радиомодуля  
+  verify_configuration_radio(); 
 
   radio.stopListening();  // First, stop listening so we can talk.
   Serial.println(F("Now sending"));

@@ -10,10 +10,18 @@
 #define nRF24L01_tve_h
 #pragma once  
 
-#define CE_PIN 6
-#define CSN_PIN 7
+// Объявляем объект радиомодуля (CE_PIN, CSN_PIN - определены в основном коде                                                                )
 RF24 radio(CE_PIN, CSN_PIN);
 byte addresses[][6] = {"1Node","2Node"};
+
+#define tmeVerifyConfig 5000  // интервал между проверками конфигурации радиомодуля (мсек)
+
+// Настроить приемо-передачу радиомодулей nRF24L01 для RF24 radio(CE_PIN, CSN_PIN)
+void configureRadio(); 
+// Перезапустить сеанс связи при обнаружении сбоя, проблемы с оборудованием  
+void radio_failure_restarting();
+// Перепроверить конфигурацию радиомодуля  
+void verify_configuration_radio(uint32_t intConfig=tmeVerifyConfig); 
 
 // ****************************************************************************
 // *             Настроить приемо-передачу радиомодулей nRF24L01              *
@@ -46,6 +54,38 @@ void configureRadio()
   // Начинаем прослушивание канала и выводим начальные настройки радио модуля
   radio.startListening();
   radio.printDetails();
+}
+// ****************************************************************************
+// * Перезапустить сеанс связи при обнаружении сбоя, проблемы с оборудованием *  
+// ****************************************************************************
+void radio_failure_restarting()
+{
+  // Обрабатываем обнаруженный сбой (проблему с оборудованием)
+  if (radio.failureDetected) 
+  {
+    radio.failureDetected = false;
+    delay(250);
+    Serial.println("Обнаружен сбой радиосвязи, перезапускаем сеанс");
+    configureRadio();
+  }
+} 
+// ****************************************************************************
+// *                     Перепроверить конфигурацию радиомодуля               *  
+// ****************************************************************************
+uint32_t configTimer = millis();
+void verify_configuration_radio(uint32_t intConfig=tmeVerifyConfig) 
+{
+  // Через заданный интервал в миллисекундах проверяем конфигурацию радиомодуля,
+  // проверяя настройки, отличные от установленных по умолчанию
+  if (millis() - configTimer > intConfig) 
+  {
+    configTimer = millis();
+    if (radio.getDataRate() != RF24_1MBPS) 
+    {
+      radio.failureDetected = true;
+      Serial.println("Обнаружена ошибка конфигурации радиомодуля");
+    }
+  }
 }
 
 #endif
