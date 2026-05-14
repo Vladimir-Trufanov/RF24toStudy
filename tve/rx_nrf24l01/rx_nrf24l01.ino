@@ -1,9 +1,10 @@
-
-/*
-  ПРИЕМНИК
-
-  Примерный эскиз для радиостанций nRF24L01+
-  Это очень простой пример того, как отправлять данные с одного узла на другой, но измененный, чтобы включить обработку сбоев.
+/** Arduino C/C++ ***************************************** rx_nrf24l01.ino ***
+ *
+ * ПРИЕМНИК - примерный эскиз для радиостанций nRF24L01+,
+ * как передавать данные с одного узла на другой с обработкой сбоев.
+ * 
+ * v2.0.2, 14.05.2026                                 Автор:      Труфанов В.Е.
+ * Copyright © 2026 tve                               Дата создания: 12.05.2026
 
   Радиоприемники nrf24l01+ являются достаточно надежными устройствами, но на макетных платах и т.д. с несогласованной проводкой сбои могут
   возникать случайным образом по прошествии многих часов, дней или недель. На этом примере показано, как справляться с различными сбоями и
@@ -14,71 +15,31 @@
   Чтение с радио: Доступно всегда возвращает значение true - Исправлено путем добавления таймаута к доступным функциям пользователем. Это реализовано внутри сети RF24Network.
   Потеряны настройки конфигурации радиостанции - исправлено путем отслеживания значения, отличающегося от значения по умолчанию, и повторной настройки радиостанции, если это значение возвращается к значению по умолчанию.
 
-  Для радио #0 вывод сведений должен выглядеть следующим образом:
-
-  STATUS         = 0x0e RX_DR=0 TX_DS=0 MAX_RT=0 RX_P_NO=7 TX_FULL=0
-  RX_ADDR_P0-1   = 0x65646f4e31 0x65646f4e32
-  RX_ADDR_P2-5   = 0xc3 0xc4 0xc5 0xc6
-  TX_ADDR        = 0x65646f4e31
-  RX_PW_P0-6     = 0x20 0x20 0x00 0x00 0x00 0x00
-  EN_AA          = 0x3f
-  EN_RXADDR      = 0x02
-  RF_CH          = 0x4c
-  RF_SETUP       = 0x03
-  CONFIG         = 0x0f
-  DYNPD/FEATURE  = 0x00 0x00
-  Data Rate      = 1MBPS
-  Model          = nRF24L01+
-  CRC Length     = 16 bits
-  PA Power       = PA_LOW
-
-  Updated: 2019 by TMRh20
-*/
+ * Arduino UNO
+ * -----------
+ * Скетч использует 7836 байт (24%) памяти устройства. Всего доступно 32256 байт.
+ * Глобальные переменные используют 368 байт (17%) динамической памяти, оставляя 1680 байт для локальных переменных. Максимум: 2048 байт.
+ * "C:\Users\Евгеньевич\AppData\Local\Arduino15\packages\arduino\tools\avrdude\8.0.0-arduino1/bin/avrdude" "-CC:\Users\Евгеньевич\AppData\Local\Arduino15\packages\arduino\tools\avrdude\8.0.0-arduino1/etc/avrdude.conf" -v -V -patmega328p -carduino "-PCOM15" -b115200 -D "-Uflash:w:C:\Users\Евгеньевич\AppData\Local\arduino\sketches\FFB62B8ACB700253A43AF9BFDD89E6A5/rx_nrf24l01.ino.hex:i"
+ * Avrdude version 8.0-arduino.1
+ * 
+ * v2.0.2, 14.05.2026:   7836 (24%) =>  368 (17%) => 1680 [2048]
+ * v3.0.8, 06.04.2026:  25928 (80%) => 1415       => 633
+ *
+**/
 
 #include <SPI.h>
 #include "RF24.h"
 #include "printf.h"
 
-/****************** User Config ***************************/
-#define CE_PIN 6
-#define CSN_PIN 7
-RF24 radio(CE_PIN, CSN_PIN);
-byte addresses[][6] = { "1Node", "2Node" };
-
-// Set this radio as radio number 0 or 1
-// Used to control whether this node is sending or receiving
-bool radioNumber = 0;   // для 1 контроллера
-bool role = 0;          // для 1 контроллера
-
-/**********************************************************/
-
-// Функция настройки радио
-void configureRadio() 
-{
-  radio.begin();
-  // Устанавливаем низкий уровень мощности, чтобы предотвратить проблемы, связанные с питанием, 
-  // поскольку, скорее всего, устройства расположены близко. Значение по умолчанию - RF24_PA_MAX.
-  radio.setPALevel(RF24_PA_LOW);
-  // Open a writing and reading pipe on each radio, with opposite addresses
-  if (radioNumber) 
-  {
-    radio.openWritingPipe(addresses[1]);
-    radio.openReadingPipe(1, addresses[0]);
-  } 
-  else 
-  {
-    radio.openWritingPipe(addresses[0]);
-    radio.openReadingPipe(1, addresses[1]);
-  }
-  // Start the radio listening for data
-  radio.startListening();
-  radio.printDetails();
-}
+// Назначаем радиомодуль на приём
+bool radioNumber = 0;   // false для 1 контроллера (приемника)
+// Подключаем локальные рабочие функции радиомодуля
+#include "nRF24L01_tve.h"
 
 void setup() 
 {
   Serial.begin(115200);
-  Serial.println(F("RF24/examples/GettingStarted"));
+  Serial.println(F("\nnRF24L01: стартовал прием!"));
   printf_begin();
   configureRadio();
 }
@@ -129,4 +90,7 @@ void loop()
     Serial.print(F("Sent response "));
     Serial.println(got_time);
   }
-}  
+} 
+
+// Arduino C/C++ ****************************************** rx_nrf24l01.ino ***
+
