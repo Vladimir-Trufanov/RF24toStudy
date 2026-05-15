@@ -3,7 +3,7 @@
  * ПЕРЕДАТЧИК - примерный эскиз для радиостанций nRF24L01+,
  * как передавать данные с одного узла на другой с обработкой сбоев.
  * 
- * v2.0.2, 14.05.2026                                 Автор:      Труфанов В.Е.
+ * v2.0.3, 15.05.2026                                 Автор:      Труфанов В.Е.
  * Copyright © 2026 tve                               Дата создания: 12.05.2026
 
   Радиоприемники nrf24l01+ являются достаточно надежными устройствами, но на макетных платах и т.д. с несогласованной проводкой сбои могут
@@ -66,27 +66,19 @@ void loop()
   verify_configuration_radio(); 
 
   radio.stopListening();  // остановили прослушивание перед отправкой пакета
-  //Serial.print(F("Передача: "));
   // Выбираем время для сообщения. Отправляемое сообщение 
-  
   // будет заблокировано до завершения передачи
   unsigned long start_time = micros(); 
-
   char myData[32]  = "Hello МИР! -------------- 31\0";     // массив для хранения и передачи данных.
   char ackData[32] = "0123456789012345678901234567 31\0";  // массив для получения данных из пакета подтверждения приёма (до 32 байт включительно).
-
-  //if (!radio.write(&start_time, sizeof(unsigned long))) 
   // Зачищаем буфер пакета для передачи
   memset(myData,'\0',32);
   // Преобразовываем unsigned long в char[]
   snprintf(myData, sizeof(myData), "%lu", start_time);
-
   if (!radio.write(&myData, sizeof(myData))) 
   {
     Serial.println(F("Передача пакета не завершена!"));
   }
-  //Serial.print(F("start_time: ")); Serial.println(start_time);
-  Serial.print(F("Передача:   ")); Serial.println(myData);
   radio.startListening();  // начали прослушивание ответа
 
   unsigned long started_waiting_at = micros();   // установили начало периода ожидания, выбрав текущие микросекунды
@@ -109,9 +101,6 @@ void loop()
   // Захватываем ответ приёмника, проверяем и обрабатываем
   else 
   {
-    unsigned long got_time;  // зарезервировали переменную для полученной временной метки
-
-
     // Считываем ответ или обрабатываем сбой
     uint32_t failTimer = millis();
     while (radio.available())  
@@ -123,26 +112,19 @@ void loop()
         Serial.println("Затяжная передача пакета!");
         break;
       }
-      //radio.read(&got_time, sizeof(unsigned long));
       memset(ackData,'\0',32);
       radio.read(&ackData, sizeof(ackData));
     }
     unsigned long end_time = micros();
-
-
-
-    // Spew it
-    Serial.print(F("Sent "));
+    Serial.print(F("Отправлено "));
     Serial.print(start_time);
-    Serial.print(F(", Got response "));
-    //Serial.print(got_time);
+    Serial.print(F(", получено "));
     Serial.print(ackData);
-    Serial.print(F(", Round-trip delay "));
+    Serial.print(F(", задержка между отправкой и получением "));
     Serial.print(end_time - start_time);
-    Serial.println(F(" microseconds"));
+    Serial.println(F(" микросекунд"));
   }
-
-  delay(1000);  // Try again 1s later
+  delay(2000); 
 } 
 
 // Arduino C/C++ ****************************************** tx_nrf24l01.ino ***

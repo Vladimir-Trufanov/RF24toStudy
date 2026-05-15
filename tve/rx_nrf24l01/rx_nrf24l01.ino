@@ -65,9 +65,6 @@ void loop()
   // Перепроверяем конфигурацию радиомодуля  
   verify_configuration_radio(); 
 
-  // Определяем переменную для полученной временной метки
-  unsigned long got_time = micros(); 
-
   char myData[32];   // зарезервировали буфер приёма пакета char[31]+'\0'
   char ackData[32];  // зарезервировали буфер для пакета подтверждения приёма (до 32 байт включительно).
 
@@ -75,7 +72,7 @@ void loop()
   {
     uint32_t failTimer = millis();
 
-    while (radio.available())  // While there is data ready
+    while (radio.available())  
     {
       if (millis() - failTimer > 500) 
       {
@@ -83,24 +80,19 @@ void loop()
         radio.failureDetected = true;
         break;
       }
-      //radio.read(&got_time, sizeof(unsigned long));  // получили полезную нагрузку
       // Очищаем буфер и принимаем пакет
       memset(myData,'\0',32);
       radio.read(&myData, sizeof(myData));  
       Serial.print(F("Приём: ")); Serial.println(myData);
-  }
-
-    radio.stopListening();                           // отключили прослушивание для обратной передачи
-    // Очищаем буфер и принимаем пакет
+    }
+    radio.stopListening();    // отключили прослушивание для обратной передачи
+    // Очищаем буфер подтверждения приема и перекидываем пакет
     memset(ackData,'\0',32);
     strcat(ackData,myData); 
-
-    // radio.write(&got_time, sizeof(unsigned long));   // отправили последнее сообщение обратно
-    radio.write(&ackData, sizeof(ackData));   // отправили последнее сообщение обратно
-    radio.startListening();                          // возобновляем прослушивание для приема следующих пакетов
-    Serial.print(F("Ответ передатчику: "));
-    //Serial.println(got_time);
-    Serial.println(ackData);
+    // Отправляем последнее сообщение обратно
+    radio.write(&ackData, sizeof(ackData));  
+    radio.startListening();  // возобновляем прослушивание для приема следующих пакетов
+    Serial.print(F("Ответ: ")); Serial.println(ackData);
   }
 } 
 
