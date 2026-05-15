@@ -65,55 +65,78 @@ void loop()
   // Перепроверяем конфигурацию радиомодуля  
   verify_configuration_radio(); 
 
-  radio.stopListening();  // First, stop listening so we can talk.
-  Serial.println(F("Now sending"));
-  unsigned long start_time = micros();  // Take the time, and send it.  This will block until complete
-  if (!radio.write(&start_time, sizeof(unsigned long))) 
+  radio.stopListening();  // остановили прослушивание перед отправкой пакета
+  //Serial.print(F("Передача: "));
+  // Выбираем время для сообщения. Отправляемое сообщение 
+  
+  // будет заблокировано до завершения передачи
+  unsigned long start_time = micros(); 
+
+  char myData[32]  = "Hello МИР! -------------- 31\0";     // массив для хранения и передачи данных.
+  char ackData[32] = "0123456789012345678901234567 31\0";  // массив для получения данных из пакета подтверждения приёма (до 32 байт включительно).
+
+  //if (!radio.write(&start_time, sizeof(unsigned long))) 
+  // Зачищаем буфер пакета для передачи
+  memset(myData,'\0',32);
+  // Преобразовываем unsigned long в char[]
+  snprintf(myData, sizeof(myData), "%lu", start_time);
+
+  if (!radio.write(&myData, sizeof(myData))) 
   {
-    Serial.println(F("failed"));
+    Serial.println(F("Передача пакета не завершена!"));
   }
-  radio.startListening();  // Now, continue listening
+  //Serial.print(F("start_time: ")); Serial.println(start_time);
+  Serial.print(F("Передача:   ")); Serial.println(myData);
+  radio.startListening();  // начали прослушивание ответа
 
-  unsigned long started_waiting_at = micros();  // Set up a timeout period, get the current microseconds
-  bool timeout = false;                         // Set up a variable to indicate if a response was received or not
+  unsigned long started_waiting_at = micros();   // установили начало периода ожидания, выбрав текущие микросекунды
+  bool timeout = false;                          // установили значение, указывающее, что ответа пока нет (сбросили значение)
 
-  while (!radio.available())  // While nothing is received
+  while (!radio.available())  
   {
-    if (micros() - started_waiting_at > 200000)  // If waited longer than 200ms, indicate timeout and exit while loop
+    // Если ожидание превысило 200 мс, то указываем тайм-аут и выходим из цикла
+    if (micros() - started_waiting_at > 200000)  
     {
       timeout = true;
       break;
     }
   }
-
+  // Отмечаем ошибку по таймауту
   if (timeout) 
   {
-    // Describe the results
-    Serial.println(F("Failed, response timed out."));
+    Serial.println(F("Ошибка, время ответа истекло!"));
   } 
+  // Захватываем ответ приёмника, проверяем и обрабатываем
   else 
   {
-    // Grab the response, compare, and send to debugging spew
-    unsigned long got_time;  // Variable for the received timestamp
-    // Failure Handling
+    unsigned long got_time;  // зарезервировали переменную для полученной временной метки
+
+
+    // Считываем ответ или обрабатываем сбой
     uint32_t failTimer = millis();
-    while (radio.available())  // If available() always returns true, there is a problem
+    while (radio.available())  
     {
+      // Отлавливаем затяжной приём (если функция available() возвращает значение true длительное время)
       if (millis() - failTimer > 250) 
       {
         radio.failureDetected = true;
-        Serial.println("Radio available failure detected");
+        Serial.println("Затяжная передача пакета!");
         break;
       }
-      radio.read(&got_time, sizeof(unsigned long));
+      //radio.read(&got_time, sizeof(unsigned long));
+      memset(ackData,'\0',32);
+      radio.read(&ackData, sizeof(ackData));
     }
     unsigned long end_time = micros();
+
+
 
     // Spew it
     Serial.print(F("Sent "));
     Serial.print(start_time);
     Serial.print(F(", Got response "));
-    Serial.print(got_time);
+    //Serial.print(got_time);
+    Serial.print(ackData);
     Serial.print(F(", Round-trip delay "));
     Serial.print(end_time - start_time);
     Serial.println(F(" microseconds"));

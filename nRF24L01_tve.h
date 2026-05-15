@@ -65,7 +65,7 @@ void radio_failure_restarting()
   {
     radio.failureDetected = false;
     delay(250);
-    Serial.println("Обнаружен сбой радиосвязи, перезапускаем сеанс");
+    Serial.println("Сбой радиосвязи, перезапускаем сеанс");
     configureRadio();
   }
 } 
@@ -83,10 +83,12 @@ void verify_configuration_radio(uint32_t intConfig=tmeVerifyConfig)
     if (radio.getDataRate() != RF24_1MBPS) 
     {
       radio.failureDetected = true;
-      Serial.println("Обнаружена ошибка конфигурации радиомодуля");
+      Serial.println("Ошибка конфигурации радиомодуля!");
     }
   }
 }
+
+
 
 #endif
 
