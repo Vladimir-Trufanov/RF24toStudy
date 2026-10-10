@@ -56,6 +56,8 @@ target_add_binary_data(${COMPONENT_TARGET} ${CMAKE_SOURCE_DIR}/certs/<span class
 
 📝 10.12.2023 🔹 [Как и на чём программировать ESP32 и ESP8266](https://kotyara12.ru/iot/esp_start/)
 
+> !!! ***[Поддержка ESP32 в PlatformIO остановилась на последней версии 2.x](https://alexgyver.ru/lessons/platformio/)***, тогда как официальная версия уже пару лет как 3.x. За что PlatformIO обиделась на Espressif можно почитать здесь, а если вам нужна актуальная версия ядра ESP32 в PIO - используйте форк pioarduino, для этого достаточно прописать в конфиге platform = https://github.com/pioarduino/platform-espressif32/releases/download/stable/platform-espressif32.zip вместо platform = espressif32. Для обновления платформы нужно почистить кэш pio system prune и запустить обновление с флагом переустановки, например pio pkg install -e esp32dev-latest --force - иначе pio кеширует старую ссылку на платформу и просто не обновляет её
+
 📝 11.10.2023 🔹 [Управление версиями фреймворков Arduino32 и ESP-IDF в проектах PlatformIO](https://kotyara12.ru/iot/pio_versions_control/)
 
 📝 13.04.2023 🔹 [Пакетная компиляция проектов PlatformIO](https://kotyara12.ru/iot/batch-pio-compile/)
