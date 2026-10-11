@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #include <ESP8266WiFi.h>
+// #include <ESP8266.h>
 
 void ViewInfo();
 
@@ -27,6 +28,7 @@ void setup()
   Serial.print("Flash Size: ");
   Serial.println(ESP.flashSize() / (1024 * 1024)); // Convert to MB
   */
+  
 }
 
 void loop() 
@@ -57,6 +59,12 @@ void ViewInfo()
     }
     index += 3;
   }
+  Serial.println(" ");
+
+   
+  uint32_t realSize = ESP.getFlashChipRealSize();
+  Serial.printf("Реальный размер флеш-памяти: %u байт\n", realSize);
+
   Serial.println("}");
   Serial.println("-------------------");
 }
