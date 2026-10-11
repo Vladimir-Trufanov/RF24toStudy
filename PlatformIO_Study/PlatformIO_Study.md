@@ -1,5 +1,11 @@
 ## PlatformIO_Study - переход с IDE Arduino на PlatformIO
 
+### [Программаторы ESP8266](#)
+
+![Программатор ESP12-ESP07](programer-ESP12-ESP07.jpg)
+
+![Программатор ESP01](Skhema-podklyucheniya-modulya-ESP-01-1024x416.jpg)
+
 ### [Переползаем с Arduino IDE на VSCode + PlatformIO](https://kotyara12.ru/iot/crawl-to-pio/)
 
 Устанавливаем плагин ***C++ IntelliSense***. В принципе этот шаг можно пропустить, PIO сам установит его в процессе, но я предпочитаю сделать это явно. 
