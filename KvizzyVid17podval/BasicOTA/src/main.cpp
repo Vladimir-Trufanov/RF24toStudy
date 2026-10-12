@@ -13,7 +13,7 @@ void setup()
 {
   Serial.begin(115200);
   delay(5000);
-  Serial.print("Будем подключаться к WiFi-сети из PlatformIO "); Serial.println(ssid);
+  Serial.print("Будем подключаться из PlatformIO к WiFi-сети "); Serial.println(ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) 
@@ -42,45 +42,50 @@ void setup()
     if (ArduinoOTA.getCommand() == U_FLASH) 
     {
       type = "sketch";
-    } else {  // U_FS
+    } 
+    else 
+    {  // U_FS
       type = "filesystem";
     }
 
     // NOTE: if updating FS this would be the place to unmount FS using FS.end()
-    Serial.println("Start updating " + type);
+    Serial.println("Начало обновления " + type);
   });
   ArduinoOTA.onEnd([]() 
   {
-    Serial.println("\nEnd");
+    Serial.println("\nОбновление завершено");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) 
   {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    Serial.printf("Обновлено: %u%%\r", (progress / (total / 100)));
   });
   ArduinoOTA.onError([](ota_error_t error) 
   {
-    Serial.printf("Error[%u]: ", error);
+    Serial.printf("Ошибка обновления[%u]: ", error);
     if (error == OTA_AUTH_ERROR) 
     {
-      Serial.println("Auth Failed");
-    } else if (error == OTA_BEGIN_ERROR) 
+      Serial.println("OTA_AUTH_ERROR");
+    } 
+    else if (error == OTA_BEGIN_ERROR) 
     {
-      Serial.println("Begin Failed");
-    } else if (error == OTA_CONNECT_ERROR) 
+      Serial.println("OTA_BEGIN_ERROR");
+    } 
+    else if (error == OTA_CONNECT_ERROR) 
     {
-      Serial.println("Connect Failed");
-    } else if (error == OTA_RECEIVE_ERROR) 
+      Serial.println("OTA_CONNECT_ERROR");
+    } 
+    else if (error == OTA_RECEIVE_ERROR) 
     {
-      Serial.println("Receive Failed");
-    } else if (error == OTA_END_ERROR) 
+      Serial.println("OTA_RECEIVE_ERROR");
+    } 
+    else if (error == OTA_END_ERROR) 
     {
-      Serial.println("End Failed");
+      Serial.println("OTA_END_ERROR");
     }
   });
   ArduinoOTA.begin();
-  Serial.println("Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.print("Контроллер подключен к WiFi-сети "); Serial.println(ssid);
+  Serial.print("IP адрес:                        "); Serial.println(WiFi.localIP());
 }
 
 void loop() 
