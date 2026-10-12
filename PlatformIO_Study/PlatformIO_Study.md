@@ -76,7 +76,14 @@ target_add_binary_data(${COMPONENT_TARGET} ${CMAKE_SOURCE_DIR}/certs/<span class
 
 📝 21.04.2021 🔹 [Переползаем с Arduino IDE на VSCode + PlatformIO](https://kotyara12.ru/iot/crawl-to-pio/)
 
+### Ссылки на значимые файлы в моём моноблоке
 
+```
+C:/.platformio/packages/framework-arduinoexpressif8266/libraries/ESP8266WiFi/src/ESP8266WiFi.h
+C:/Users/Евгеньевич/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/3.1.2/libraries/ESP8266WiFi/src/ESP8266WiFi.h
+
+
+```
 
 
 

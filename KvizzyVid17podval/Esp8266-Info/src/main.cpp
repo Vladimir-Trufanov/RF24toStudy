@@ -1,7 +1,5 @@
 #include <Arduino.h>
-
 #include <ESP8266WiFi.h>
-// #include <ESP8266.h>
 
 void ViewInfo();
 
@@ -13,22 +11,6 @@ void setup()
     // Wait for serial port to connect. Needed for native USB port only
     delay(100);
   }
-
-  /*
-  // Информация о чипе
-  Serial.print("Chip ID: ");
-  Serial.println(ESP.chipId());
-
-  // Информация о CPU
-  Serial.print("CPU Frequency: ");
-  Serial.print(System.cpuFreq() / 1000000); // Convert to MHz
-  Serial.println(" MHz");
- 
-  // Информация о Flash-памяти
-  Serial.print("Flash Size: ");
-  Serial.println(ESP.flashSize() / (1024 * 1024)); // Convert to MB
-  */
-  
 }
 
 void loop() 
@@ -41,7 +23,12 @@ void ViewInfo()
 {
   Serial.println("\nESP8266 Parameters:");
   Serial.println("-------------------");
-   // MAC-адрес
+  
+  // Информация о чипе
+  Serial.print("Chip ID: ");
+  Serial.println(ESP.getChipId());
+  
+  // MAC-адрес
   Serial.print("MAC-Address: ");
   String mac = WiFi.macAddress();
   Serial.println(mac);
