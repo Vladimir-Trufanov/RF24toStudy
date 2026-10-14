@@ -1,0 +1,146 @@
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
+#include <SPI.h>      // библиотека для обмена данными по протоколу SPI
+#include <nRF24L01.h> // библиотека для nRF24L01+
+#include <RF24.h>     // библиотека для радио модуля
+
+
+// "OPPO A9 2020"; "TP-Link_B394"; "tve-DESKTOP"; "linksystve"; "linksystve";
+// "b277a4ee84e8"; "18009217"    ; "Ue18-647"   ; "x93k6kq6wf"; "X93K6KQ6WF";
+const char* ssid     = "OPPO A9 2020";
+const char* password = "b277a4ee84e8";
+
+RF24 radio(4,5);      // 4=CE, 5=CS
+const uint8_t num_channels = 128;
+uint8_t values[num_channels];
+
+/*
+int serial_putc(char c, FILE *) 
+{
+  Serial.write(c);
+  return c;
+}
+void printf_begin(void) 
+{
+  fdevopen(&serial_putc, 0);
+}
+*/
+
+void setup() 
+{
+  Serial.begin(115200);
+  delay(5000);
+  Serial.print("Будем подключаться из PlatformIO к WiFi-сети "); Serial.println(ssid);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) 
+  {
+    Serial.println("Ошибка соединения! Перезагрузка через 5 секунд ...");
+    delay(5000);
+    ESP.restart();
+  }
+
+  Serial.setDebugOutput(true);
+ 
+  radio.begin();
+  radio.setAutoAck(false);
+  radio.startListening();  // включаем прием сигнала
+  radio.printDetails();    // если правильно соединили, то увидите настройки модуля
+  delay(10000);            // задержка на 10 секунд
+  radio.stopListening();   // выключаем прием сигнала
+
+  int i = 0;               // вывод заголовков всех 127 каналов
+  // Выводим в строку экрана младшие разряды номеров каналов (0x00=0; 0x7F=127)
+  // через сдвиг числа на четыре бита вправо
+  while (i < num_channels) 
+  {
+    printf("%x",i>>4);
+    ++i;
+  }
+  printf("\n\r");
+  // Выводим в строку экрана старшие разряды номеров каналов (0x00=0; 0x7F=127)
+  // через битовое сложение номера канала и 0xF
+  i = 0;
+  while ( i < num_channels ) 
+  {
+    printf("%x",i&0xF);
+    ++i;
+  }
+  printf("\n\r");
+
+
+
+
+  // Port defaults to 8266
+  // ArduinoOTA.setPort(8266);
+
+  // Hostname defaults to esp8266-[ChipID]
+  // ArduinoOTA.setHostname("myesp8266");
+
+  // No authentication by default
+  // ArduinoOTA.setPassword("admin");
+
+  // Password can be set with it's md5 value as well
+  // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
+  // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+
+  ArduinoOTA.onStart([]() 
+  {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) 
+    {
+      type = "sketch";
+    } 
+    else 
+    {  // U_FS
+      type = "filesystem";
+    }
+
+    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+    Serial.println("Начало обновления " + type);
+  });
+  ArduinoOTA.onEnd([]() 
+  {
+    Serial.println("\nОбновление завершено");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) 
+  {
+    Serial.printf("Обновлено: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) 
+  {
+    Serial.printf("Ошибка обновления[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) 
+    {
+      Serial.println("OTA_AUTH_ERROR");
+    } 
+    else if (error == OTA_BEGIN_ERROR) 
+    {
+      Serial.println("OTA_BEGIN_ERROR");
+    } 
+    else if (error == OTA_CONNECT_ERROR) 
+    {
+      Serial.println("OTA_CONNECT_ERROR");
+    } 
+    else if (error == OTA_RECEIVE_ERROR) 
+    {
+      Serial.println("OTA_RECEIVE_ERROR");
+    } 
+    else if (error == OTA_END_ERROR) 
+    {
+      Serial.println("OTA_END_ERROR");
+    }
+  });
+  ArduinoOTA.begin();
+  Serial.print("Контроллер подключен к WiFi-сети "); Serial.println(ssid);
+  Serial.print("IP адрес:                        "); Serial.println(WiFi.localIP());
+}
+
+void loop() 
+{
+  ArduinoOTA.handle();
+}

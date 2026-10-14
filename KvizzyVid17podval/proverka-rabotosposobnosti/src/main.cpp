@@ -16,7 +16,7 @@
 #include <nRF24L01.h> // библиотека для nRF24L01+
 #include <RF24.h>     // библиотека для радио модуля
 
-RF24 radio(6,7);    
+RF24 radio(6,7);      // 6=CE, 7=CS
 const uint8_t num_channels = 128;
 uint8_t values[num_channels];
 
