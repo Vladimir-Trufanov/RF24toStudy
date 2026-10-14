@@ -8,7 +8,6 @@
 #include <nRF24L01.h> // библиотека для nRF24L01+
 #include <RF24.h>     // библиотека для радио модуля
 
-
 // "OPPO A9 2020"; "TP-Link_B394"; "tve-DESKTOP"; "linksystve"; "linksystve";
 // "b277a4ee84e8"; "18009217"    ; "Ue18-647"   ; "x93k6kq6wf"; "X93K6KQ6WF";
 const char* ssid     = "OPPO A9 2020";
@@ -52,28 +51,6 @@ void setup()
   radio.printDetails();    // если правильно соединили, то увидите настройки модуля
   delay(10000);            // задержка на 10 секунд
   radio.stopListening();   // выключаем прием сигнала
-
-  int i = 0;               // вывод заголовков всех 127 каналов
-  // Выводим в строку экрана младшие разряды номеров каналов (0x00=0; 0x7F=127)
-  // через сдвиг числа на четыре бита вправо
-  while (i < num_channels) 
-  {
-    printf("%x",i>>4);
-    ++i;
-  }
-  printf("\n\r");
-  // Выводим в строку экрана старшие разряды номеров каналов (0x00=0; 0x7F=127)
-  // через битовое сложение номера канала и 0xF
-  i = 0;
-  while ( i < num_channels ) 
-  {
-    printf("%x",i&0xF);
-    ++i;
-  }
-  printf("\n\r");
-
-
-
 
   // Port defaults to 8266
   // ArduinoOTA.setPort(8266);
@@ -138,9 +115,58 @@ void setup()
   ArduinoOTA.begin();
   Serial.print("Контроллер подключен к WiFi-сети "); Serial.println(ssid);
   Serial.print("IP адрес:                        "); Serial.println(WiFi.localIP());
+
+  int i = 0;               // вывод заголовков всех 127 каналов
+  // Выводим в строку экрана младшие разряды номеров каналов (0x00=0; 0x7F=127)
+  // через сдвиг числа на четыре бита вправо
+  while (i < num_channels) 
+  {
+    printf("%x",i>>4);
+    ++i;
+  }
+  printf("\n\r");
+  // Выводим в строку экрана старшие разряды номеров каналов (0x00=0; 0x7F=127)
+  // через битовое сложение номера канала и 0xF
+  i = 0;
+  while ( i < num_channels ) 
+  {
+    printf("%x",i&0xF);
+    ++i;
+  }
+  printf("\n\r");
 }
+
+// Задаем число прослушиваний каждого канала = 100
+const int num_reps = 100;
+// Задаем время прослушивания канала за раз в микросекундах
+const int num_delmks = 128;
 
 void loop() 
 {
   ArduinoOTA.handle();
+
+  // Пробегаем по каналам заданное число раз и 
+  // подсчитываем, сколько раз был сигнал на каждом канале
+  memset(values, 0, sizeof(values));
+  int rep_counter = num_reps;
+  while (rep_counter--) 
+  {
+    int i = num_channels;
+    while (i--) 
+    {
+      radio.setChannel(i);
+      radio.startListening(); // включаем прием сигнала
+      delayMicroseconds(num_delmks);
+      radio.stopListening();  // выключаем прием сигнала
+      if (radio.testCarrier()) ++values[i];
+    }
+  }
+
+  int i = 0;
+  while (i < num_channels) 
+  {
+    printf("%x", min(0xf, values[i] & 0xf));
+    ++i;
+  }
+  printf("\n\r");
 }
