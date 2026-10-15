@@ -1,4 +1,5 @@
 // tickerOSWatch.ino
+// https://github.com/esp8266/Arduino/issues/1532
 
 #include <Ticker.h>
 Ticker tickerOSWatch;

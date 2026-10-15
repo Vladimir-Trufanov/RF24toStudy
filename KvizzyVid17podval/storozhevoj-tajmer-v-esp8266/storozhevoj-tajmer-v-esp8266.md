@@ -240,7 +240,12 @@ void loop()
 
 #### [Watchdog managed by sketch only #1532](https://github.com/esp8266/Arduino/issues/1532)
 
-Можно поставить программный сторожевой таймер по прерываниям: [tickerOSWatch.ino](tickerOSWatch/tickerOSWatch.ino)
+> ***Можно поставить программный сторожевой таймер по прерываниям
+> (работающий, но уже устаревший - ядро до 3.0.0 ): 
+> [tickerOSWatch.ino](tickerOSWatch/tickerOSWatch.ino)***
+> 
+> ***Обработка прерывания программного таймера современного проекта (ядро после 3.0.0):
+> [ESP8266_Timer_Interrupts](ESP8266_Timer_Interrupts/src/main.cpp)***
 
 
 ### [ESP8266 Watchdogs in Arduino](https://sigmdel.ca/michel/program/esp8266/arduino/watchdogs_en.html)
