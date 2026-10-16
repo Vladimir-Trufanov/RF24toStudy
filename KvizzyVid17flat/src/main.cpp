@@ -141,10 +141,18 @@ const int num_reps = 100;
 // Задаем время прослушивания канала за раз в микросекундах
 const int num_delmks = 128;
 
+unsigned long imess = millis();
+
 void loop() 
 {
   ArduinoOTA.handle();
+  if ((millis()-imess)>7000)
+  {
+    Serial.println("\n i Прошло 7 секунд!");
+    imess = millis();
+  }
 
+  /*
   // Пробегаем по каналам заданное число раз и 
   // подсчитываем, сколько раз был сигнал на каждом канале
   memset(values, 0, sizeof(values));
@@ -169,4 +177,5 @@ void loop()
     ++i;
   }
   printf("\n\r");
+  */
 }
