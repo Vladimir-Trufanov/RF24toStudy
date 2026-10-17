@@ -10,13 +10,23 @@
 
 // "OPPO A9 2020"; "TP-Link_B394"; "tve-DESKTOP"; "linksystve"; "linksystve";
 // "b277a4ee84e8"; "18009217"    ; "Ue18-647"   ; "x93k6kq6wf"; "X93K6KQ6WF";
-const char* ssid     = "OPPO A9 2020";
-const char* password = "b277a4ee84e8";
 
+// 17.10.2026 IP = 10.12.16.124
+// const char* ssid     = "OPPO A9 2020";
+// const char* password = "b277a4ee84e8";
+
+// 17.10.2026 IP = 192.168.0.108 - включён в исключений у DRWEB
+const char* ssid     = "TP-Link_B394";
+const char* password = "18009217";
+
+// Определяем контакт для синего светодиода
+#define LED_built 2
+// Инициируем nRF24L01+
 RF24 radio(4,5);      // 4=CE, 5=CS
 const uint8_t num_channels = 128;
 uint8_t values[num_channels];
-
+// Сбрасываем признак передачи через OTA
+bool isOTA = false;
 /*
 int serial_putc(char c, FILE *) 
 {
@@ -32,6 +42,12 @@ void printf_begin(void)
 void setup() 
 {
   Serial.begin(115200);
+  Serial.setDebugOutput(true);
+  Serial.println(" ");
+  // Подсоединяем управление синим светодиодом и выключаем его
+  pinMode(LED_built, OUTPUT); 
+  digitalWrite(LED_built, true);          
+  
   delay(5000);
   Serial.print("Будем подключаться из PlatformIO к WiFi-сети "); Serial.println(ssid);
   WiFi.mode(WIFI_STA);
@@ -79,10 +95,18 @@ void setup()
 
     // NOTE: if updating FS this would be the place to unmount FS using FS.end()
     Serial.println("Начало обновления " + type);
+    // Включаем синий светодиод
+    digitalWrite(LED_built, false);  
+    // Устанавливаем признак передачи через OTA
+    isOTA = true;
   });
   ArduinoOTA.onEnd([]() 
   {
     Serial.println("\nОбновление завершено");
+    // Выключаем синий светодиод
+    digitalWrite(LED_built, true);          
+    // Сбрасываем признак передачи через OTA
+    isOTA = false;
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) 
   {
@@ -124,7 +148,8 @@ void setup()
     printf("%x",i>>4);
     ++i;
   }
-  printf("\n\r");
+  //printf("\n");
+  Serial.println("\n***112***\n");
   // Выводим в строку экрана старшие разряды номеров каналов (0x00=0; 0x7F=127)
   // через битовое сложение номера канала и 0xF
   i = 0;
@@ -143,14 +168,19 @@ const int num_delmks = 128;
 
 unsigned long imess = millis();
 
+void _loop() 
+{
+  if ((millis()-imess)>7000)
+  {
+    Serial.println("Прошло 7 секунд!");
+    imess = millis();
+  }
+}
+
 void loop() 
 {
   ArduinoOTA.handle();
-  if ((millis()-imess)>7000)
-  {
-    Serial.println("\n i Прошло 7 секунд!");
-    imess = millis();
-  }
+  if (isOTA==false) _loop();
 
   /*
   // Пробегаем по каналам заданное число раз и 
