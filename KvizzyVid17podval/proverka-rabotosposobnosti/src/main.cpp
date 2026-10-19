@@ -43,7 +43,8 @@
   }
 #endif
 
-RF24 radio(6,7);      // 6=CE, 7=CS
+//RF24 radio(6,7);      // 6=CE, 7=CS
+RF24 radio(4,5);      
 TnRF24L01 nRF(radio);
 
 //const uint8_t num_channels = 128;
