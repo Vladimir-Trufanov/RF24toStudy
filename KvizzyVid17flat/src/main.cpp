@@ -28,6 +28,37 @@ const char* password = "b277a4ee84e8";
 // Инициируем nRF24L01+
 RF24 radio(4,5);      // 4=CE, 5=CS
 TnRF24L01 nRF(radio);
+
+// Устанавливаем адрес "трубы" - адрес передатчика и явно указываем компилятору, 
+// что литерал имеет тип unsigned long (как минимум 32 бита) 
+// для предотвращения неявного усечения значения
+const uint32_t pipe = (uint32_t)0x7878787878; 
+
+// Настраиваем вывод в поток 
+#if defined(__AVR__)
+  // для AVR (классические Arduino)
+  int serial_putc(char c, FILE *) 
+  {
+    Serial.write(c);
+    return c;
+  }
+  void printf_begin( ) 
+  {
+    fdevopen(&serial_putc, 0);
+  }
+#elif defined(ESP8266)
+  // для ESP8266
+  void printf_begin( ) 
+  {
+    Serial.setDebugOutput(true);
+  }
+#else
+  // другой код
+  void printf_begin( ) 
+  {
+  }
+#endif
+
 // Сбрасываем признак передачи через OTA
 bool isOTA;
 
@@ -58,13 +89,6 @@ void setup()
     ESP.restart();
   }
 
-  radio.begin();
-  radio.setAutoAck(false);
-  radio.startListening();  // включаем прием сигнала
-  radio.printDetails();    // если правильно соединили, то увидите настройки модуля
-  delay(10000);            // задержка на 10 секунд
-  radio.stopListening();   // выключаем прием сигнала
-  
   // Port defaults to 8266
   // ArduinoOTA.setPort(8266);
 
@@ -138,7 +162,13 @@ void setup()
   Serial.print("Контроллер подключен к WiFi-сети "); Serial.println(ssid);
   Serial.print("IP адрес:                        "); Serial.println(WiFi.localIP());
 
-  nRF.Check_performance(true);
+  radio.begin();                  // инициировали работу nRF24L01
+  // При необходимости инициируем проверку работоспособности
+  // nRF.Check_performance(true);
+  radio.setChannel(0x6f);         // установили канал
+  radio.openReadingPipe(0, pipe); // открыли "трубу" чтения
+  radio.startListening();         // начали прослушивать
+  Serial.println("");
 }
 
 unsigned long imess = millis();
@@ -146,14 +176,27 @@ unsigned long imess = millis();
 void _loop() 
 {
   last_loop = millis();
-  /*
-  if ((millis()-imess)>7000)
+  // Прослушиваем каналы
+  // nRF.Check_performance(); 
+  // Если модуль получил информацию, считываем буфер до 32 символов
+  if (radio.available()) 
+  { 
+    char text[34] = {0};             // переменная, хранящая текст сообщения
+    yield(); 
+    radio.read(&text, sizeof(text)); // считали текст сообщения
+    yield(); 
+    Serial.println(text);            // вывели текст в монитор порта
+  }
+  // Прерываем блокировку процессора ESP8266
+  // (на мгновение передаём управление фоновым функциям Wi-Fi и предотвращаем перезагрузку
+  // от сторожевого таймера)
+  yield(); 
+  
+  if ((millis()-imess)>8000)
   {
-    Serial.println("Прошло 7 секунд!");
+    Serial.println("Прошло 8 секунд!");
     imess = millis();
   }
-  */
-  nRF.Check_performance();
 }
 
 void loop() 

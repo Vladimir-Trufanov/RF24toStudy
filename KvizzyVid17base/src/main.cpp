@@ -15,8 +15,7 @@
 #include <SPI.h>                  // подключили библиотеку SPI
 #include <nRF24L01.h>             // подключили библиотеку nRF24L01
 #include <RF24.h>                 // подключили библиотеку RF24
-
-#include "with_nRF24L01.h"
+#include <with_nRF24L01.h>
 
 RF24 radio(6,7);                  // указали номера выводов nRF24L01: CE и CSN
 TnRF24L01 nRF(radio);
