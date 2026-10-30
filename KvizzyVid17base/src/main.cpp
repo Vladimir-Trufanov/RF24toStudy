@@ -20,6 +20,30 @@
 RF24 radio(6,7);                  // указали номера выводов nRF24L01: CE и CSN
 TnRF24L01 nRF(radio);
 
+// ---
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+
+/* v1
+#define DHT11_PIN  9 
+DHT dht11(DHT11_PIN, DHT11);
+*/
+
+
+// датчик подключен к контакту №2
+#define DHTPIN 9
+
+// выбираем модель датчика, убрав признак комментария у нужной строки
+#define DHTTYPE    DHT11     // DHT 11
+//#define DHTTYPE    DHT22     // DHT 22 (AM2302)
+//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
+
+// создаем объект dht, с которым будем работать
+DHT_Unified dht(DHTPIN, DHTTYPE);
+// ---
+
+
 // Устанавливаем адрес "трубы" - адрес передатчика и явно указываем компилятору, 
 // что литерал имеет тип unsigned long (как минимум 32 бита) 
 // для предотвращения неявного усечения значения
@@ -63,8 +87,18 @@ void setup()
   radio.setChannel(0x6f);        // установили канал
   radio.openWritingPipe(pipe);   // открыли "трубу" отправки данных
   radio.stopListening();         // прекратили прослушивание
+
+  // ---
+  // инициализируем датчика
+  dht.begin();
+  // ---
+
   Serial.println("Setup");       // отметили завершение Setup
 }
+
+
+
+unsigned long timeDHT = millis();
 
 // С интервалом в 5 секунд отправляем сообщение в 32 символа
 // (2026-05-08 было замечено, что если оторван провод CE, то
@@ -81,6 +115,70 @@ void loop()
   delay(5000);                      // задержка 
   // Прослушиваем каналы
   // nRF.Check_performance();    
+
+
+  // Считываем температуру и влажность не ранее чем 12 секунд
+  if ((millis()-timeDHT)>12000)
+  {
+
+    /* v1
+
+    // Считываем влажность
+    float humi  = dht11.readHumidity();
+    // Считываем температуру
+    float tempC = dht11.readTemperature();
+    // Проверяем, успешно ли выполнено считывание
+    if (isnan(tempC) || isnan(humi)) 
+    {
+      Serial.println("Ошибка чтения датчика DHT11!");
+    } 
+    else 
+    {
+      Serial.print("Влажность: ");
+      Serial.print(humi);
+      Serial.print("%");
+      Serial.print("  |  ");
+      Serial.print("Tемпература: ");
+      Serial.print(tempC);
+      Serial.println("°C");
+  
+      // Вычисляем параметры и формируем json-сообщение для отправки на State 
+      // - "{\"dht11\":{\"humi\":46,\"tempC\":248}}"
+      //      jhumi = (int)humi;     
+      //    jtempC = (int)(tempC*10); 
+      */
+
+
+    sensors_event_t event;
+    // получаем значение температуры
+    dht.temperature().getEvent(&event);
+    if (isnan(event.temperature)) {
+        // в случае проблем с датчиком температуры выводим следующий текст
+        Serial.println("Error reading temperature!");
+    }
+    else {
+        // вывод в COM порт текста Temperature: xxx°C
+        Serial.print("Temperature: ");
+        Serial.print(event.temperature);
+        Serial.println("°C");
+    }
+    // получаем значение влажности
+    dht.humidity().getEvent(&event);
+    if (isnan(event.relative_humidity)) {
+        // в случае проблем с датчиком влажности выводим следующий текст
+        Serial.println("Error reading humidity!");
+    }
+    else {
+        // вывод в COM порт текста Humidity: xxx%
+        Serial.print("Humidity: ");
+        Serial.print(event.relative_humidity);
+        Serial.println("%");
+    }
+
+      
+      timeDHT = millis();
+    
+  }   
 }
 
 // ******************************************************** KvizzyVid17base ***
