@@ -35,8 +35,8 @@ DHT dht11(DHT11_PIN, DHT11);
 #define DHTPIN 9
 
 // выбираем модель датчика, убрав признак комментария у нужной строки
-#define DHTTYPE    DHT11     // DHT 11
-//#define DHTTYPE    DHT22     // DHT 22 (AM2302)
+// #define DHTTYPE    DHT11     // DHT 11
+#define DHTTYPE    DHT22     // DHT 22 (AM2302)
 //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
 
 // создаем объект dht, с которым будем работать
