@@ -7,7 +7,7 @@
 // *        ---- Optimized high speed nRF24L01+ driver class documentation v1.6.2, * 
 // *                                                  ---- включающая nRF24L01.h) *
 // *                                                                          *
-// * v1.0.0, 19.10.2026                            Автор:       Труфанов В.Е. *
+// * v1.0.1, 31.10.2026                            Автор:       Труфанов В.Е. *
 // * Copyright © 2026 tve                          Дата создания:  19.10.2026 *
 // ****************************************************************************
 
@@ -16,33 +16,16 @@
 #include <nRF24L01.h>             // подключили библиотеку nRF24L01
 #include <RF24.h>                 // подключили библиотеку RF24
 #include <with_nRF24L01.h>
+#include <with_DHT1122.h>
 
+// Подключаем объекты для работы с радиомодулем
 RF24 radio(6,7);                  // указали номера выводов nRF24L01: CE и CSN
 TnRF24L01 nRF(radio);
+// Подключаем объект для чтения с датчика температуры и влажности
+Tdht1122 dhtv;
 
-// ---
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <DHT_U.h>
-
-/* v1
-#define DHT11_PIN  9 
-DHT dht11(DHT11_PIN, DHT11);
-*/
-
-
-// датчик подключен к контакту №2
-#define DHTPIN 9
-
-// выбираем модель датчика, убрав признак комментария у нужной строки
-// #define DHTTYPE    DHT11     // DHT 11
-#define DHTTYPE    DHT22     // DHT 22 (AM2302)
-//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
-
-// создаем объект dht, с которым будем работать
-DHT_Unified dht(DHTPIN, DHTTYPE);
-// ---
-
+// Определяем таймаут чтения показаний температуры и влажности
+#define timeoutDHT 13000          // 13 секунд
 
 // Устанавливаем адрес "трубы" - адрес передатчика и явно указываем компилятору, 
 // что литерал имеет тип unsigned long (как минимум 32 бита) 
@@ -88,15 +71,7 @@ void setup()
   radio.openWritingPipe(pipe);   // открыли "трубу" отправки данных
   radio.stopListening();         // прекратили прослушивание
 
-  // ---
-  // инициализируем датчика
-  dht.begin();
-  // ---
-
-  Serial.println("Setup");       // отметили завершение Setup
 }
-
-
 
 unsigned long timeDHT = millis();
 
@@ -117,67 +92,17 @@ void loop()
   // nRF.Check_performance();    
 
 
-  // Считываем температуру и влажность не ранее чем 12 секунд
-  if ((millis()-timeDHT)>12000)
+  // Считываем температуру и влажность не ранее чем timeoutDHT секунд
+  if ((millis()-timeDHT)>timeoutDHT)
   {
+    //float TempC = 
+    dhtv.getTemp(true); 
+    //Serial.println(TempC);
 
-    /* v1
-
-    // Считываем влажность
-    float humi  = dht11.readHumidity();
-    // Считываем температуру
-    float tempC = dht11.readTemperature();
-    // Проверяем, успешно ли выполнено считывание
-    if (isnan(tempC) || isnan(humi)) 
-    {
-      Serial.println("Ошибка чтения датчика DHT11!");
-    } 
-    else 
-    {
-      Serial.print("Влажность: ");
-      Serial.print(humi);
-      Serial.print("%");
-      Serial.print("  |  ");
-      Serial.print("Tемпература: ");
-      Serial.print(tempC);
-      Serial.println("°C");
-  
-      // Вычисляем параметры и формируем json-сообщение для отправки на State 
-      // - "{\"dht11\":{\"humi\":46,\"tempC\":248}}"
-      //      jhumi = (int)humi;     
-      //    jtempC = (int)(tempC*10); 
-      */
-
-
-    sensors_event_t event;
-    // получаем значение температуры
-    dht.temperature().getEvent(&event);
-    if (isnan(event.temperature)) {
-        // в случае проблем с датчиком температуры выводим следующий текст
-        Serial.println("Error reading temperature!");
-    }
-    else {
-        // вывод в COM порт текста Temperature: xxx°C
-        Serial.print("Temperature: ");
-        Serial.print(event.temperature);
-        Serial.println("°C");
-    }
-    // получаем значение влажности
-    dht.humidity().getEvent(&event);
-    if (isnan(event.relative_humidity)) {
-        // в случае проблем с датчиком влажности выводим следующий текст
-        Serial.println("Error reading humidity!");
-    }
-    else {
-        // вывод в COM порт текста Humidity: xxx%
-        Serial.print("Humidity: ");
-        Serial.print(event.relative_humidity);
-        Serial.println("%");
-    }
-
-      
-      timeDHT = millis();
-    
+    //float Humi = 
+    dhtv.getHumi(true); 
+    //Serial.println(Humi);
+    timeDHT = millis();
   }   
 }
 
