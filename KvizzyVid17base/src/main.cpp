@@ -99,7 +99,7 @@ void loop()
   // Прослушиваем каналы
   // nRF.Check_performance();    
 
-  // Считываем температуру и влажность не ранее чем timeoutDHT секунд
+  // Считываем температуру и влажность, уровень воды не ранее чем timeoutDHT секунд
   if ((millis()-timeDHT)>timeoutDHT)
   {
     // Пересчитываем параметры показаний датчиков для json-сообщения
@@ -107,16 +107,31 @@ void loop()
     int jtempC=(int)(dhtv.getTemp(true)*10);         // "248", температура в десятых градусах цельсия - "Температура = 24.8°C"       
     char text[32] = "Hello МиР! -------------- 31";  // Текст сообщения = 32 символа
     //Serial.println(text);  
-    String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}";  
-    Serial.print(s_DHT11+"\n ");  
            
     // Чистим строку сообщения
-    memset(text,'\0',32); //text[31]='\0';
-    // Формируем прообраз json-сообщения с показаниями температуры и влажности - "dht22:{humi:46,tempC:248}"     
+    memset(text,'\0',32); 
+    String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}"; Serial.print(s_DHT11+"\n ");  
+    // Формируем прообраз json-сообщения с показаниями температуры и влажности - "dht22":{"humi":46,"tempC":248}     
     strcat(text,"\"dht22\":{\"humi\":"); 
     strcat(text,IntToChar(jhumi));   
     strcat(text,",\"tempC\":"); 
     strcat(text,IntToChar(jtempC));   
+    strcat(text,"}");   
+    // Отсылаем сообщение
+    radio.write(&text, sizeof(text));  
+    Serial.println(text);              // вывели текст в монитор порта
+
+    // Через 1 секунду считываем уровень воды в интервале от 0 до 1023
+    delay(2000);
+    int water = analogRead(A0);  
+    Serial.print("Уровень воды:   "); Serial.print(water); Serial.println(" ед");
+
+    // Чистим строку сообщения
+    memset(text,'\0',32); 
+    String s_WATER = "{\"water\":{\"level\":"+String(water)+"}}"; Serial.print(s_WATER+"\n ");  
+    // Формируем прообраз json-сообщения с показанием уровня воды - "water":{"level":697}     
+    strcat(text,"\"water\":{\"level\":"); 
+    strcat(text,IntToChar(water));   
     strcat(text,"}");   
     // Отсылаем сообщение
     radio.write(&text, sizeof(text));  

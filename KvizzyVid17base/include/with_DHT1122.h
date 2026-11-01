@@ -69,7 +69,7 @@ float Tdht1122::getHumi(bool isSerial)
     // При необходимости трассируем считанное значение
     if (isSerial)
     {
-      Serial.print("Влажность:   "); Serial.print(Humi); Serial.println("%");
+      Serial.print("Влажность:    "); Serial.print(Humi); Serial.println(" %");
     }
   }
   return Humi;
@@ -92,7 +92,7 @@ float Tdht1122::getTemp(bool isSerial)
     // При необходимости трассируем считанное значение
     if (isSerial)
     {
-      Serial.print("Температура: "); Serial.print(TempC); Serial.println("°C");
+      Serial.print("Температура:  "); Serial.print(TempC); Serial.println(" °C");
     }
   }
   return TempC;
