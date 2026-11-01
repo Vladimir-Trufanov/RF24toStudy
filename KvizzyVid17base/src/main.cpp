@@ -57,6 +57,21 @@ const uint32_t pipe = (uint32_t)0x7878787878;
   }
 #endif
 
+// ****************************************************************************
+// *            Преобразовать беззнаковое  целое в строку символов            *
+// ****************************************************************************
+char charNumby[10]; // char[9]+'\0'
+char* IntToChar(uint32_t numbIn) 
+{
+  uint32_t numby=numbIn;
+  memset(charNumby,'\0',10); 
+  if (numby>999999999) numby=999999999;
+  String(numby).toCharArray(charNumby,10);
+  return charNumby;
+}
+
+
+
 void setup() 
 {
   Serial.begin(115200);          // установили скор.обмена данными 115200 бод
@@ -81,27 +96,28 @@ unsigned long timeDHT = millis();
 // контроллер зависает)
 void loop() 
 {
-  // const char text[] = "Hello World 234567 20 2345678 31"; // Текст сообщения = 32 символа
-  // const char text[] =    "Hello МИР! 234567 20 2345 31";  // Текст сообщения = 32 символа
-  const char text[] =    "Hello МиР! -------------- 31";  // Текст сообщения = 32 символа
-  radio.write(&text, sizeof(text));  // отослали текст
-  Serial.println(text);              // вывели текст в монитор порта
-  
-  delay(5000);                      // задержка 
   // Прослушиваем каналы
   // nRF.Check_performance();    
-
 
   // Считываем температуру и влажность не ранее чем timeoutDHT секунд
   if ((millis()-timeDHT)>timeoutDHT)
   {
-    //float TempC = 
-    dhtv.getTemp(true); 
-    //Serial.println(TempC);
+    
+    // Пересчитываем параметры показаний датчиков для json-сообщения
+    int jhumi=(int)dhtv.getHumi(true);        // "46", процент влажности - "Влажность = 46%"
+    int jtempC=(int)(dhtv.getTemp(true)*10);  // "248", температура в десятых градусах цельсия - "Температура = 24.8°C"       
 
-    //float Humi = 
-    dhtv.getHumi(true); 
-    //Serial.println(Humi);
+    // const char text[] = "Hello МИР! 234567 20 2345 31";  // Текст сообщения = 32 символа
+    char text[]    = "Hello МиР! -------------- 31";  // Текст сообщения = 32 символа
+    // Чистим строку сообщения (пробелами и нулем)
+    memset(text,32,31); text[31]='\0';
+    // Формируем прообраз json-сообщения с показаниями температуры и влажности - "dht22:{humi:46,tempC:248}"     
+    strcat(text,"dht22");   
+    strcat(text,IntToChar(jhumi));   
+
+    radio.write(&text, sizeof(text));  // отослали текст
+    Serial.println(text);              // вывели текст в монитор порта
+  
     timeDHT = millis();
   }   
 }
