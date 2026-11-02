@@ -2,12 +2,10 @@
 
 // ******************************************************** KvizzyVid17base ***
 // *                                                                          *
-// *   -------Проверить работоспособность модуля nrf24l01 и правильность подключения *   
-// *                 ------ (установлена штатная библиотека RF24.h от TMRt20 v1.6.2: *
-// *        ---- Optimized high speed nRF24L01+ driver class documentation v1.6.2, * 
-// *                                                  ---- включающая nRF24L01.h) *
+// *                Передавать показания температуры, влажности, уровня воды, *
+// *                      напряжения питания из подвала дома (нижний уровень) *   
 // *                                                                          *
-// * v1.0.1, 31.10.2026                            Автор:       Труфанов В.Е. *
+// * v1.1.0, 02.11.2026                            Автор:       Труфанов В.Е. *
 // * Copyright © 2026 tve                          Дата создания:  19.10.2026 *
 // ****************************************************************************
 
@@ -16,7 +14,10 @@
 #include <nRF24L01.h>             // подключили библиотеку nRF24L01
 #include <RF24.h>                 // подключили библиотеку RF24
 #include <with_nRF24L01.h>
+
 #include <with_DHT1122.h>
+#include <Vid17baseCommon.h> 
+#include <iarduino_VCC.h> 
 
 // Подключаем объекты для работы с радиомодулем
 RF24 radio(6,7);                  // указали номера выводов nRF24L01: CE и CSN
@@ -57,21 +58,6 @@ const uint32_t pipe = (uint32_t)0x7878787878;
   }
 #endif
 
-// ****************************************************************************
-// *            Преобразовать беззнаковое  целое в строку символов            *
-// ****************************************************************************
-char charNumby[10]; // char[9]+'\0'
-char* IntToChar(uint32_t numbIn) 
-{
-  uint32_t numby=numbIn;
-  memset(charNumby,'\0',10); 
-  if (numby>999999999) numby=999999999;
-  String(numby).toCharArray(charNumby,10);
-  return charNumby;
-}
-
-
-
 void setup() 
 {
   Serial.begin(115200);          // установили скор.обмена данными 115200 бод
@@ -99,30 +85,25 @@ void loop()
   // Прослушиваем каналы
   // nRF.Check_performance();    
 
-  // Считываем температуру и влажность, уровень воды не ранее чем timeoutDHT секунд
+  // Считываем температуру и влажность, уровень воды, напряжение питания
+  // не ранее чем timeoutDHT секунд
   if ((millis()-timeDHT)>timeoutDHT)
   {
-    // Пересчитываем параметры показаний датчиков для json-сообщения
-    int jhumi=(int)dhtv.getHumi(true);               // "46", процент влажности - "Влажность = 46%"
-    int jtempC=(int)(dhtv.getTemp(true)*10);         // "248", температура в десятых градусах цельсия - "Температура = 24.8°C"       
-    char text[32] = "Hello МиР! -------------- 31";  // Текст сообщения = 32 символа
-    //Serial.println(text);  
-           
-    // Чистим строку сообщения
-    memset(text,'\0',32); 
-    String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}"; Serial.print(s_DHT11+"\n ");  
-    // Формируем прообраз json-сообщения с показаниями температуры и влажности - "dht22":{"humi":46,"tempC":248}     
-    strcat(text,"\"dht22\":{\"humi\":"); 
-    strcat(text,IntToChar(jhumi));   
-    strcat(text,",\"tempC\":"); 
-    strcat(text,IntToChar(jtempC));   
-    strcat(text,"}");   
-    // Отсылаем сообщение
-    radio.write(&text, sizeof(text));  
-    Serial.println(text);              // вывели текст в монитор порта
+    // Формируем и отправляем json-сообщение по температуре и влажности 
+    makeHumiTemp(radio); 
+    // Делаем задержку в полсекунды до следующего сообщения
+    delay(500);
+    // Формировуем и отправляем сообщения по уровню воды и напряжению питания 
+    makeWaterPower(radio); 
 
+    /*
+    // Резервируем буфер сообщения на 31 символ + завершающий ноль
+    char text[32] = "Hello МиР! -------------- 31";  // текст сообщения = 32 символа
+    //Serial.println(text);  
+  
+      
     // Через 1 секунду считываем уровень воды в интервале от 0 до 1023
-    delay(2000);
+    delay(1000);
     int water = analogRead(A0);  
     Serial.print("Уровень воды:   "); Serial.print(water); Serial.println(" ед");
 
@@ -136,7 +117,27 @@ void loop()
     // Отсылаем сообщение
     radio.write(&text, sizeof(text));  
     Serial.println(text);              // вывели текст в монитор порта
-  
+
+    // Через 1 секунду снимаем напряжение батареи
+    delay(1000);
+    float Vcc=analogRead_VCC();
+    Serial.print("Напряжение:     "); Serial.print(Vcc); Serial.println(" В");
+    // Округляем напряжение до 2 знаков после запятой
+    Vcc=round(Vcc * 100.0) / 100.0; 
+    // Отрезаем целое в сотых долях
+    int jvcc=(int)(Vcc*100);    // "491", напряжение батареи в сотых долях вольта - "Напряжение = 4.91 В"       
+    // Чистим строку сообщения
+    memset(text,'\0',32); 
+    String s_POWER = "{\"vcc\":{\"power\":"+String(jvcc)+"}}"; Serial.print(s_POWER+"\n ");  
+    // Формируем прообраз json-сообщения с показанием уровня воды - "water":{"level":697}     
+    strcat(text,"\"vcc\":{\"power\":"); 
+    strcat(text,IntToChar(jvcc));   
+    strcat(text,"}");   
+    // Отсылаем сообщение
+    radio.write(&text, sizeof(text)); 
+    Serial.println(text);              // вывели текст в монитор порта
+    */
+   
     timeDHT = millis();
   }   
 }
