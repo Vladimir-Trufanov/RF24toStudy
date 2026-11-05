@@ -53,7 +53,7 @@ void makeHumiTemp(RF24 radio)
   int jtempC=(int)(tempC*10);  // "248", температура в десятых градусах цельсия - "Температура = 24.8°C"       
   // Чистим строку сообщения
   memset(text,'\0',32); 
-  String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}"; Serial.print(s_DHT11+"\n ");  
+  // String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}"; Serial.print(s_DHT11+"\n ");  
   // Формируем прообраз json-сообщения с показаниями температуры и влажности - "dht22":{"humi":46,"tempC":248}     
   strcat(text,"\"dht22\":{\"humi\":"); 
   strcat(text,IntToChar(jhumi));   
@@ -78,7 +78,7 @@ void makeWaterPower(RF24 radio)
   Serial.print("Уровень воды:   "); Serial.print(water); Serial.println(" ед");
   // Чистим строку сообщения
   memset(text,'\0',32); 
-  String s_WATER = "{\"water\":{\"level\":"+String(water)+"}}"; Serial.print(s_WATER+"\n ");  
+  // String s_WATER = "{\"water\":{\"level\":"+String(water)+"}}"; Serial.print(s_WATER+"\n ");  
   // Формируем прообраз json-сообщения с показанием уровня воды - "water":{"level":697}     
   strcat(text,"\"water\":{\"level\":"); 
   strcat(text,IntToChar(water));   
@@ -99,7 +99,7 @@ void makeWaterPower(RF24 radio)
   int jvcc=(int)(Vcc*100); // "491", напряжение батареи в сотых долях вольта - "Напряжение = 4.91 В"       
   // Чистим строку сообщения
   memset(text,'\0',32); 
-  String s_POWER = "{\"vcc\":{\"power\":"+String(jvcc)+"}}"; Serial.print(s_POWER+"\n ");  
+  // String s_POWER = "{\"vcc\":{\"power\":"+String(jvcc)+"}}"; Serial.print(s_POWER+"\n ");  
   // Формируем прообраз json-сообщения с показанием уровня воды - "water":{"level":697}     
   strcat(text,"\"vcc\":{\"power\":"); 
   strcat(text,IntToChar(jvcc));   

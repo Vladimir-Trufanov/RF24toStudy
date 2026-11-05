@@ -5,7 +5,7 @@
 // *                Передавать показания температуры, влажности, уровня воды, *
 // *                      напряжения питания из подвала дома (нижний уровень) *   
 // *                                                                          *
-// * v1.1.0, 02.11.2026                            Автор:       Труфанов В.Е. *
+// * v1.1.1, 02.11.2026                            Автор:       Труфанов В.Е. *
 // * Copyright © 2026 tve                          Дата создания:  19.10.2026 *
 // ****************************************************************************
 
@@ -17,7 +17,6 @@
 
 #include <with_DHT1122.h>
 #include <Vid17baseCommon.h> 
-#include <iarduino_VCC.h> 
 
 // Подключаем объекты для работы с радиомодулем
 RF24 radio(6,7);                  // указали номера выводов nRF24L01: CE и CSN
@@ -74,9 +73,10 @@ void setup()
 
 }
 
-unsigned long timeDHT = millis();
+uint32_t timeDHT = millis();
+uint32_t iLoop=0;
 
-// С интервалом в 5 секунд отправляем сообщение в 32 символа
+// С интервалом отправляем сообщение в 32 символа
 // (2026-05-08 было замечено, что если оторван провод CE, то
 // команда "radio.write(&text, sizeof(text));" не завершается и
 // контроллер зависает)
@@ -89,6 +89,9 @@ void loop()
   // не ранее чем timeoutDHT секунд
   if ((millis()-timeDHT)>timeoutDHT)
   {
+    iLoop++;
+    Serial.print("\nLoop = "); Serial.println(iLoop);  
+
     // Формируем и отправляем json-сообщение по температуре и влажности 
     makeHumiTemp(radio); 
     // Делаем задержку в полсекунды до следующего сообщения
@@ -96,48 +99,6 @@ void loop()
     // Формировуем и отправляем сообщения по уровню воды и напряжению питания 
     makeWaterPower(radio); 
 
-    /*
-    // Резервируем буфер сообщения на 31 символ + завершающий ноль
-    char text[32] = "Hello МиР! -------------- 31";  // текст сообщения = 32 символа
-    //Serial.println(text);  
-  
-      
-    // Через 1 секунду считываем уровень воды в интервале от 0 до 1023
-    delay(1000);
-    int water = analogRead(A0);  
-    Serial.print("Уровень воды:   "); Serial.print(water); Serial.println(" ед");
-
-    // Чистим строку сообщения
-    memset(text,'\0',32); 
-    String s_WATER = "{\"water\":{\"level\":"+String(water)+"}}"; Serial.print(s_WATER+"\n ");  
-    // Формируем прообраз json-сообщения с показанием уровня воды - "water":{"level":697}     
-    strcat(text,"\"water\":{\"level\":"); 
-    strcat(text,IntToChar(water));   
-    strcat(text,"}");   
-    // Отсылаем сообщение
-    radio.write(&text, sizeof(text));  
-    Serial.println(text);              // вывели текст в монитор порта
-
-    // Через 1 секунду снимаем напряжение батареи
-    delay(1000);
-    float Vcc=analogRead_VCC();
-    Serial.print("Напряжение:     "); Serial.print(Vcc); Serial.println(" В");
-    // Округляем напряжение до 2 знаков после запятой
-    Vcc=round(Vcc * 100.0) / 100.0; 
-    // Отрезаем целое в сотых долях
-    int jvcc=(int)(Vcc*100);    // "491", напряжение батареи в сотых долях вольта - "Напряжение = 4.91 В"       
-    // Чистим строку сообщения
-    memset(text,'\0',32); 
-    String s_POWER = "{\"vcc\":{\"power\":"+String(jvcc)+"}}"; Serial.print(s_POWER+"\n ");  
-    // Формируем прообраз json-сообщения с показанием уровня воды - "water":{"level":697}     
-    strcat(text,"\"vcc\":{\"power\":"); 
-    strcat(text,IntToChar(jvcc));   
-    strcat(text,"}");   
-    // Отсылаем сообщение
-    radio.write(&text, sizeof(text)); 
-    Serial.println(text);              // вывели текст в монитор порта
-    */
-   
     timeDHT = millis();
   }   
 }
