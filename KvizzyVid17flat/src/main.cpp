@@ -16,12 +16,12 @@ static unsigned long last_loop = millis();
 // "b277a4ee84e8"; "18009217"    ; "Ue18-647"   ; "x93k6kq6wf"; "X93K6KQ6WF";
 
 // 17.10.2026 IP = 10.12.16.124
-const char* ssid     = "OPPO A9 2020";
-const char* password = "b277a4ee84e8";
+//const char* ssid     = "OPPO A9 2020";
+//const char* password = "b277a4ee84e8";
 
 // 17.10.2026 IP = 192.168.0.108 - включён в исключений у DRWEB
-// const char* ssid     = "TP-Link_B394";
-// const char* password = "18009217";
+const char* ssid     = "TP-Link_B394";
+const char* password = "18009217";
 
 // Определяем контакт для синего светодиода
 #define LED_built 2
