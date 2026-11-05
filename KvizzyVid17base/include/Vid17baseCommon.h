@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 #include <RF24.h>                 // подключили библиотеку RF24
-#include <iarduino_VCC.h> 
+#include <iarduino_VCC.h>         // http://iarduino.ru
 #include <with_DHT1122.h>
 
 // Подключаем объект для чтения с датчика температуры и влажности
