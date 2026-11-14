@@ -1,20 +1,35 @@
+// ******************************************************** KvizzyVid17flat ***
+// *                                                                          *
+// *            Принимать json-сообщения о показаниях температуры, влажности, *
+// *     уровня воды, напряжения питания с нижнего уровня (из подвала дома) и *
+// *     передавать по Internet WiFi на сайт (выполнять работу промежуточного *
+// *                                                                  уровня) * 
+// *                                                                          *
+// * v1.2.1, 14.11.2026                            Автор:       Труфанов В.Е. *
+// * Copyright © 2026 tve                          Дата создания:  19.10.2026 *
+// ****************************************************************************
+
 #include <Arduino.h>
+#include "Vid17flatDefine.h"
+#include "Vid17flatCommon.h"
+#include "Vid17flatHTTPS.h"
+
+// Подключаем задачи
+#include "v17Base.h"          // 4-3307 принять сообщение нижнего уровня и отправить на сайт
+#include "v17Power.h"         // 4-3511 определить напряжение питания и отправить на сайт
 
 void setup() 
 {
   Serial.begin(115200);
-  pinMode(A0, INPUT);         // ADC
+  // Назначаем контакт A0 на приём показаний напряжения питания
+  pinMode(A0, INPUT);   
 }
 
 void loop() 
 {
-  uint32_t Vbatt = 0;
-  for(int i = 0; i < 16; i++) 
-  {
-    Vbatt = Vbatt + analogReadMilliVolts(A0); // ADC with correction   
-  }
-  float Vbattf = 2 * Vbatt / 16 / 1000.0;     // attenuation ratio 1/2, mV --> V
+  float Vbattf = getVbattf();
   Serial.println(Vbattf, 3);
   delay(3000);
 }
 
+// ******************************************************** KvizzyVid17flat ***
