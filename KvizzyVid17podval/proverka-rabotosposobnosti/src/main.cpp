@@ -30,6 +30,12 @@
   {
     fdevopen(&serial_putc, 0);
   }
+#elif defined(ESP32)
+  // для ESP8266
+  void printf_begin( ) 
+  {
+    Serial.setDebugOutput(true);
+  }
 #elif defined(ESP8266)
   // для ESP8266
   void printf_begin( ) 
@@ -43,8 +49,7 @@
   }
 #endif
 
-//RF24 radio(6,7);      // 6=CE, 7=CS
-RF24 radio(4,5);      
+RF24 radio(10,7);        // 10=CE, 7=CS
 TnRF24L01 nRF(radio);
 
 //const uint8_t num_channels = 128;
