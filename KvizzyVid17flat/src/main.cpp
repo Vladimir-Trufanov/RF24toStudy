@@ -27,6 +27,7 @@ WiFiMulti wifiMulti;
 #include "v17Base.h"          // 4-3307 принять сообщение нижнего уровня и отправить на сайт
 #include "v17Power.h"         // 4-3511 определить напряжение питания и отправить на сайт
 
+
 // Явная функция-обработчик
 void onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
@@ -50,6 +51,7 @@ void onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
       break;
   }
 }
+
 
 /*
 
@@ -139,17 +141,36 @@ void setup()
 
   // Назначаем контакт A0 на приём показаний напряжения питания
   pinMode(A0, INPUT); 
+
+  // Инициируем сторожевой таймер 
+  iniWdt(); 
+
   // Назначаем сети для подключения по WiFi
   WiFi.mode(WIFI_STA);
   wifiMulti.addAP("OPPO A9 2020", "b277a4ee84e8");
-  //wifiMulti.addAP("TP-Link_B394",  "18009217");
-  //wifiMulti.addAP("tve-DESKTOP",   "Ue18-647");
-  //wifiMulti.addAP("tve-MONOBLOCK", "Ue18-647");
-  //wifiMulti.addAP("linksystve",    "X93K6KQ6WF");
-  //wifiMulti.addAP("GoshaIMila",    "t1s2wde4bE");
+  wifiMulti.addAP("TP-Link_B394",  "18009217");
+  wifiMulti.addAP("tve-DESKTOP",   "Ue18-647");
+  wifiMulti.addAP("tve-MONOBLOCK", "Ue18-647");
+  wifiMulti.addAP("linksystve",    "X93K6KQ6WF");
+  wifiMulti.addAP("GoshaIMila",    "t1s2wde4bE");
   
   // Выполняем подключение к WiFi-сети
   WiFi_connect(wifiMulti); 
+
+  /*
+  Serial.print("mess");
+  isWiFi=false; 
+  while ((wifiMulti.run() != WL_CONNECTED)) 
+  {
+    Serial.print(".");
+    vTaskDelay(100/portTICK_PERIOD_MS);
+  }
+  Serial.println(" ");
+  Serial.print("Контроллер подключен к WiFi-сети "); Serial.println(WiFi.SSID());
+  Serial.print("IP адрес:                        "); Serial.println(WiFi.localIP());
+  isWiFi=true;
+  vTaskDelay(500/portTICK_PERIOD_MS);
+  */
  
   // Включаем обработку события отсоединения с WiFi через безымянную лямбда-функцию
   // (так как это выполняется в отдельном потоке, то просто устанавливаем флаг,
@@ -169,7 +190,7 @@ docs.espressif.com
 Внутри функции-обработчика вы определяете, какое именно событие произошло, и пишете код, который должен выполниться в этом случае
 */
 
-  // Регистрируем обработчик для конкретного события
+  // Регистрируем обработчик gjnthb ctnb WiFi
   WiFi.onEvent(onWiFiEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 
 
@@ -218,25 +239,22 @@ docs.espressif.com
   xTaskCreatePinnedToCore(  // Принять сообщение нижнего уровня и отправить на сайт 
   vBase,                    // Task function
   "vBase",                  // Task name
-  1024,                     // Stack size
+  4096,                     // Stack size
   NULL,                     // Parameters passed to the task function
-  4,                        // Priority
+  5,                        // Priority
   NULL,                     // Task handle
-  0); 
-
+  1); 
+  
   xTaskCreatePinnedToCore(  // Определить напряжение питания и отправить на сайт 
   vPower,                   // Task function
   "vPower",                 // Task name
-  1024,                     // Stack size
+  4096,                     // Stack size
   NULL,                     // Parameters passed to the task function
   4,                        // Priority
   NULL,                     // Task handle
-  0); 
-
-  // Инициируем сторожевой таймер 
-  iniWdt(); 
-
-}
+  1); 
+} 
+  
 
 void loop() 
 {
@@ -258,18 +276,23 @@ void loop()
   float Vbattf = getVbattf();
   Serial.println(Vbattf, 3);
   vTaskDelay(3000/portTICK_PERIOD_MS);
-
   
   //
+  
   if (!isWiFi)
   {
+    Serial.println("Перезагружаем контроллер после потери сети WiFi");
+    ESP.restart();
+    
+    /*
     Serial.println("Подключается WiFi после потери сети");
     wifiMulti.addAP("TP-Link_B394",  "18009217");
    
     // Подключаемя к одной из назначенных сетей
     WiFi_connect(wifiMulti); 
-   }
-  
+    */
+  }
+   
   // Определяем время работы цикла задачи
   tLoop=millis()-tTime;
   // Отмечаем завершение задачи для сторожевого таймера
