@@ -20,18 +20,14 @@
 #include "v17Base.h"          // 4-3307 принять сообщение нижнего уровня и отправить на сайт
 #include "v17Power.h"         // 4-3511 определить напряжение питания и отправить на сайт
 
-void vBase(void* pvParameters);  volatile bool finBase=false;  uint32_t tBase=millis();  uint32_t iBase=0;  // inumber == 2
-void vPower(void* pvParameters); volatile bool finPower=false; uint32_t tPower=millis(); uint32_t iPower=0; // inumber == 3
-
 void setup() 
 {
   Serial.begin(115200);
   // Назначаем контакт A0 на приём показаний напряжения питания
   pinMode(A0, INPUT); 
+  
   // Инициируем задачи
-  void IniWdtTask(); 
-
-    xTaskCreatePinnedToCore(
+  xTaskCreatePinnedToCore(  // Принять сообщение нижнего уровня и отправить на сайт 
   vBase,                    // Task function
   "vBase",                  // Task name
   1024,                     // Stack size
@@ -40,7 +36,7 @@ void setup()
   NULL,                     // Task handle
   0); 
 
-  xTaskCreatePinnedToCore(
+  xTaskCreatePinnedToCore(  // Определить напряжение питания и отправить на сайт 
   vPower,                   // Task function
   "vPower",                 // Task name
   1024,                     // Stack size
@@ -48,6 +44,15 @@ void setup()
   4,                        // Priority
   NULL,                     // Task handle
   0); 
+
+  // Создаём объект таймера, устанавливаем его частоту отсчёта (1Mhz)
+  timer = timerBegin(1000000);
+  // Подключаем функцию обработчика прерывания от таймера - onTimer
+  timerAttachInterrupt(timer, &onTimer);
+  // Настраиваем таймер: интервал перезапуска - 20 секунд (20000000 микросекунд),
+  // всегда повторяем перезапуск (третий параметр = true), неограниченное число 
+  // раз (четвертый параметр = 0) 
+  timerAlarm(timer, 20000000, true, 0);
 
 }
 
@@ -66,55 +71,17 @@ void loop()
     if (ii>0) inumber=ii;
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
- 
-  
+   
   // Получаем значение напряжения источника питания схемы (Вольт) 
   float Vbattf = getVbattf();
   Serial.println(Vbattf, 3);
   vTaskDelay(3000/portTICK_PERIOD_MS);
-  
-
+ 
   // Определяем время работы цикла задачи
   tLoop=millis()-tTime;
   // Отмечаем завершение задачи для сторожевого таймера
   finLoop = true;
-  if (inumber == 1) MimicMCUhangEvent("vBase");   
-}
-
-void vBase(void* pvParameters) 
-{
-   for ( ;; )
-   {
-      // Отмечаем начало нового цикла задачи
-      iBase++;
-      uint32_t tTime=millis();
-      // Выполняем задачу
-      Serial.println("vBase");
-      vTaskDelay(500/portTICK_PERIOD_MS);
-      // Определяем время работы цикла задачи
-      tBase=millis()-tTime;
-      // Отмечаем завершение задачи для сторожевого таймера
-      finBase = true;
-      if (inumber == 2) MimicMCUhangEvent("vBase");   
-   }
-}
-
-void vPower(void* pvParameters) 
-{
-   for ( ;; )
-   {
-      // Отмечаем начало нового цикла задачи
-      iPower++;
-      uint32_t tTime=millis();
-      // Выполняем задачу
-      Serial.println("vPower");
-      vTaskDelay(500/portTICK_PERIOD_MS);
-      // Определяем время работы цикла задачи
-      tPower=millis()-tTime;
-      // Отмечаем завершение задачи для сторожевого таймера
-      finPower = true;
-      if (inumber == 3) MimicMCUhangEvent("vPower");   
-   }
+  if (inumber == 1) MimicMCUhangEvent("Loop");   
 }
 
 // ******************************************************** KvizzyVid17flat ***

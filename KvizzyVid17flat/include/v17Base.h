@@ -10,7 +10,6 @@
 #include <Arduino.h>
 #include "v17WdtTask.h"        
 
-/*
 void vBase(void* pvParameters) 
 {
    for ( ;; )
@@ -28,6 +27,5 @@ void vBase(void* pvParameters)
       if (inumber == 2) MimicMCUhangEvent("vBase");   
    }
 }
-*/
 
 // ************************************************************** v17Base.h ***
