@@ -22,7 +22,7 @@
 // "DachaSad"     - ESP32-CAM, контроллер №1
 // "ESP_75C391"   - ESP32-CAM, контроллер №3
 // "ESP_A7E119"   - ESP32-CAM, контроллер №6
-#define soft_ap_ssid "OtPodvala" 
+// #define soft_ap_ssid "OtPodvala" 
 
 
 /*

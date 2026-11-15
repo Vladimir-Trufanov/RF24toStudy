@@ -12,10 +12,35 @@
 
 // Обеспечиваем хранение в NVS (счетчик перезапусков, дата и время)
 #include <Arduino.h>
+#include <WiFi.h>
+#include <WiFiMulti.h>
 //#include "ArduinoNvs.h"
 
 static bool isWiFi=false;          // true - WiFi подключен
 // static uint32_t boot_count;        // счетчик перезапусков
+
+
+// ****************************************************************************
+// *               Подключиться к одной из назначенных сетей                  *
+// ****************************************************************************
+void WiFi_connect(WiFiMulti wifiMulti, const char* mess="\nОжидание подключения к WiFi: ...") 
+{
+  Serial.print(mess);
+  isWiFi=false; 
+  while ((wifiMulti.run() != WL_CONNECTED)) 
+  {
+    Serial.print(".");
+    vTaskDelay(100/portTICK_PERIOD_MS);
+  }
+  Serial.println(" ");
+  Serial.print("Контроллер подключен к WiFi-сети "); Serial.println(WiFi.SSID());
+  Serial.print("IP адрес:                        "); Serial.println(WiFi.localIP());
+  isWiFi=true;
+  vTaskDelay(500/portTICK_PERIOD_MS);
+}
+
+
+
 
 /*
 // Настроить интервал синхронизации, имя сервера, режим работы и часовой пояс
