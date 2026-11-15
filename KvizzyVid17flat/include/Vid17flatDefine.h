@@ -17,6 +17,14 @@
 // Определяем id текущего контроллера в умном хозяйстве
 #define CONTROLLER 206  // 'Esp32-C3 от подвала'  
 
+// "DachaSad"     - камера для съёмок на природе
+// "OknoNaDorogu" - камера из окна на дорогу
+// "DachaSad"     - ESP32-CAM, контроллер №1
+// "ESP_75C391"   - ESP32-CAM, контроллер №3
+// "ESP_A7E119"   - ESP32-CAM, контроллер №6
+#define soft_ap_ssid "OtPodvala" 
+
+
 /*
 // Управляем включением задач
 #define tmr_LEAD
