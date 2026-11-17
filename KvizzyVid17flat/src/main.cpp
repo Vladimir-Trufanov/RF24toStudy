@@ -254,7 +254,12 @@ docs.espressif.com
   NULL,                     // Task handle
   1); 
 } 
-  
+ 
+void saymem()
+{
+ Serial.print("Cвободная куча:  "); Serial.print(ESP.getFreeHeap());  Serial.print(" от ОЗУ   "); Serial.println(ESP.getHeapSize());
+ Serial.print("FreePSRAM:      ");  Serial.print(ESP.getFreePsram()); Serial.print(" от FLASH "); Serial.println(ESP.getPsramSize());
+}
 
 void loop() 
 {
@@ -275,6 +280,7 @@ void loop()
   // Получаем значение напряжения источника питания схемы (Вольт) 
   float Vbattf = getVbattf();
   Serial.println(Vbattf, 3);
+  saymem();
   vTaskDelay(3000/portTICK_PERIOD_MS);
   
   //
