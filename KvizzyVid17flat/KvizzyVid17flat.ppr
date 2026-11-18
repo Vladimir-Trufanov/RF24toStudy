@@ -1,0 +1,153 @@
+[Config]
+Compilator.SaveAll=0
+Compilator.Capture=0
+Compilator.CompileOnBackground=0
+Compilator.ProgSaveAll=0
+Compilator.ProgRunSelection=0
+Compilator.LogType=0
+Compilator.LogEncoding=0
+DefaultDir=C:\RF24toStudy\KvizzyVid17flat
+DefaultCP=0
+LogtoEnd=1
+DontOpen=0
+AbsolutePath=0
+FileFormat=0
+ProjectFilesOnly=0
+Extensions=*.*
+[Project tree]
+KvizzyVid17flat
+	+KvizzyVid17flat
+		-.pio
+			-build
+				-nodemcu-32s
+					-FrameworkArduino
+						-libb64
+							.pio\build\nodemcu-32s\FrameworkArduino\libb64\cdecode.c.o
+							.pio\build\nodemcu-32s\FrameworkArduino\libb64\cencode.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\base64.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\cbuf.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\chip-debug-report.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\ColorFormat.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\Esp.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-adc.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-bt.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-cpu.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-dac.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-gpio.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-hosted.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-i2c.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-i2c-ng.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-i2c-slave.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-ldo.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-ledc.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-log-wrapper.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-matrix.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-misc.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-periman.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-psram.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-rgb-led.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-rmt.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-sigmadelta.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-spi.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-time.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-timer.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-tinyusb.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-touch.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-touch-ng.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\esp32-hal-uart.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\firmware_msc_fat.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\FirmwareMSC.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\freertos_stats.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\FunctionalInterrupt.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\HardwareSerial.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\HashBuilder.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\HEXBuilder.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\HWCDC.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\idf_openthread_mpool_wrapper.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\IPAddress.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\MacAddress.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\main.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\MD5Builder.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\Print.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\stdlib_noniso.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\Stream.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\StreamString.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\StringUtils.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\Tone.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\USB.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\USBCDC.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\USBHost.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\USBMSC.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\wiring_pulse.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\wiring_shift.c.o
+						.pio\build\nodemcu-32s\FrameworkArduino\WMath.cpp.o
+						.pio\build\nodemcu-32s\FrameworkArduino\WString.cpp.o
+					-lib240
+						-Network
+							.pio\build\nodemcu-32s\lib240\Network\NetworkClient.cpp.o
+							.pio\build\nodemcu-32s\lib240\Network\NetworkEvents.cpp.o
+							.pio\build\nodemcu-32s\lib240\Network\NetworkInterface.cpp.o
+							.pio\build\nodemcu-32s\lib240\Network\NetworkManager.cpp.o
+							.pio\build\nodemcu-32s\lib240\Network\NetworkServer.cpp.o
+							.pio\build\nodemcu-32s\lib240\Network\NetworkUdp.cpp.o
+						.pio\build\nodemcu-32s\lib240\libNetwork.a
+					-lib326
+						-WiFi
+							.pio\build\nodemcu-32s\lib326\WiFi\AP.cpp.o
+							.pio\build\nodemcu-32s\lib326\WiFi\STA.cpp.o
+							.pio\build\nodemcu-32s\lib326\WiFi\WiFi.cpp.o
+							.pio\build\nodemcu-32s\lib326\WiFi\WiFiAP.cpp.o
+							.pio\build\nodemcu-32s\lib326\WiFi\WiFiGeneric.cpp.o
+							.pio\build\nodemcu-32s\lib326\WiFi\WiFiMulti.cpp.o
+							.pio\build\nodemcu-32s\lib326\WiFi\WiFiScan.cpp.o
+							.pio\build\nodemcu-32s\lib326\WiFi\WiFiSTA.cpp.o
+						.pio\build\nodemcu-32s\lib326\libWiFi.a
+					-src
+						.pio\build\nodemcu-32s\src\main.cpp.o
+					.pio\build\nodemcu-32s\.sconsign311.dblite
+					.pio\build\nodemcu-32s\bootloader.bin
+					.pio\build\nodemcu-32s\firmware.bin
+					.pio\build\nodemcu-32s\firmware.elf
+					.pio\build\nodemcu-32s\firmware.map
+					.pio\build\nodemcu-32s\idedata.json
+					.pio\build\nodemcu-32s\libFrameworkArduino.a
+					.pio\build\nodemcu-32s\partitions.bin
+				.pio\build\project.checksum
+		-.vscode
+			.vscode\c_cpp_properties.json
+			.vscode\extensions.json
+			.vscode\launch.json
+		+include
+			include\README
+			include\v17Base.h
+			include\v17Power.h
+			include\v17WdtTask.h
+			include\v17WiFi.h
+			include\Vid17flatCommon.h
+			include\Vid17flatDefine.h
+			include\Vid17flatHTTPS.h
+		-lib
+			lib\README
+		+src
+			src\main.cpp
+		-test
+			test\README
+		.gitignore
+		huge_app.csv
+		KvizzyVid17flat.code-workspace
+		KvizzyVid17flat.fzz
+		KvizzyVid17flat.md
+		KvizzyVid17flat_ESP32C3.fzz
+		platformio.ini
+[Open project files]
+0=src\main.cpp
+1=include\v17WiFi.h
+[Selected Project Files]
+Main=
+Selected=include\v17WiFi.h
+[src\main.cpp]
+TopLine=156
+Caret=1,28
+[include\v17WiFi.h]
+TopLine=12
+Caret=1,25
