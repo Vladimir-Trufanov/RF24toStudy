@@ -16,18 +16,6 @@
 WiFiMulti wifiMulti;
 #include "v17WiFi.h"
 
-#include <SPI.h>      
-#include <nRF24L01.h> 
-#include <RF24.h>     
-
-// Для NodeMCU-32S
-RF24 radio(22,5);      // указали номера выводов nRF24L01: CE и CSN
-
-// Устанавливаем адрес "трубы" - адрес передатчика и явно указываем компилятору, 
-// что литерал имеет тип unsigned long (как минимум 32 бита) 
-// для предотвращения неявного усечения значения
-const uint32_t pipeIn = (uint32_t)0x7878787878; 
-
 
 //#include "Vid17flatDefine.h"
 //#include "Vid17flatCommon.h"
@@ -80,15 +68,9 @@ void setup()
   // Готовим параметры сетей для CameraWebServer   
   //IniSayWiFi();
 
-   Serial.println("Начало прослушивания !!!");      
-   radio.begin();            // инициировали работу nRF24L01
-   radio.setChannel(0x6f);   // установили канал
+  // Инициируеи прием сообщений по nRF24L01
+  iniradio();
 
-   radio.openReadingPipe(0, pipeIn); // открыли "трубу" чтения
-   radio.startListening();           // начали прослушивать
-   Serial.println("");
-
-  
   // Инициируем задачи
   xTaskCreatePinnedToCore(  // Принять сообщение нижнего уровня и отправить на сайт 
   vBase,                    // Task function
@@ -144,25 +126,9 @@ void loop()
     ESP.restart();
   }
 
+  // Принять сообщение по nRF24L01
+  //getradiomess(); 
 
-   // Если модуль получил информацию, считываем буфер до 32 символов
-   if (radio.available()) 
-   { 
-      char text[34] = {0};             // переменная, хранящая текст сообщения
-      yield(); 
-      radio.read(&text, sizeof(text)); // считали текст сообщения
-      yield(); 
-      Serial.println(text);            // вывели текст в монитор порта
-   }
-   // Прерываем блокировку процессора ESP8266 (ESP32)
-   // (на мгновение передаём управление фоновым функциям Wi-Fi и предотвращаем перезагрузку
-   // от сторожевого таймера)
-   yield(); 
-
-
-
-
-   
   // Определяем время работы цикла задачи
   tLoop=millis()-tTime;
   // Отмечаем завершение задачи для сторожевого таймера
