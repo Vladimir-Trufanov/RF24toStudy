@@ -1,6 +1,7 @@
 /** Arduino, Esp32-C3 ******************************************* v17Base.h ***
  * 
- *              Принять сообщение по радио с нижнего уровня и отправить на сайт 
+ *                                  Принять сообщение по радио с нижнего уровня 
+ *                                            и отправить его в очередь на сайт
  * 
  * v1.0.2, 19.11.2026                                 Автор:      Труфанов В.Е.
  * Copyright © 2026 tve                               Дата создания: 14.11.2026
@@ -9,9 +10,6 @@
 #pragma once            
 #include <Arduino.h>
 #include "v17WdtTask.h"  
-
-//#include <SPI.h>      
-//#include <nRF24L01.h> 
 #include <RF24.h>     
 
 // Для NodeMCU-32S
@@ -34,8 +32,6 @@ void vBase(void* pvParameters)
       // Отмечаем начало нового цикла задачи
       iBase++;
       uint32_t tTime=millis();
-      // Выполняем задачу
-      Serial.println("vBase");
 
       // Принимаем сообщение по nRF24L01
       getradiomess(); 

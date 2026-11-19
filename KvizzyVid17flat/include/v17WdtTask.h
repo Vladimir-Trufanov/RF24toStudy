@@ -15,7 +15,8 @@ volatile int inumber;
 
 // Определяем задачи, их флаги для WDT, счетчики времен работы задач и циклов задач, числа зацикливания задачи
 void vBase(void* pvParameters);  volatile bool finBase=false;  uint32_t tBase=millis();  uint32_t iBase=0;  // inumber == 2
-void vPower(void* pvParameters); volatile bool finPower=false; uint32_t tPower=millis(); uint32_t iPower=0; // inumber == 3
+void vHttps(void* pvParameters); volatile bool finHttps=false; uint32_t tHttps=millis(); uint32_t iHttps=0; // inumber == 3
+void vPower(void* pvParameters); volatile bool finPower=false; uint32_t tPower=millis(); uint32_t iPower=0; // inumber == 4
 /* loop(); */                    volatile bool finLoop=false;  uint32_t tLoop=millis();  uint32_t iLoop=0;  // inumber == 1
 
 // Определяем заголовок для объекта таймера
@@ -35,11 +36,11 @@ void IRAM_ATTR onTimer()
    // Если время работы сторожевого таймера завершено, все задачи завершены
    // хотя бы один раз (флаги завершения всех задач установлены), 
    // то сбрасываем флаги задач и снова устанавливаем счетчик сторожевого таймера
-   if (finBase == true && finPower == true && finLoop == true) 
-   //if (finPower == true && finLoop == true) 
+   if (finBase == true && finHttps == true && finPower == true && finLoop == true) 
    {
       // Сбрасываем флаги задач
       finBase = false;
+      finHttps = false;
       finPower = false;
       finLoop = false;
       // "Пинаем собаку" - устанавливаем заново счетчик сторожевого таймера

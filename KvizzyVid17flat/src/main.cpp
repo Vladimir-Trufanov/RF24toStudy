@@ -16,7 +16,6 @@
 WiFiMulti wifiMulti;
 #include "v17WiFi.h"
 
-
 //#include "Vid17flatDefine.h"
 //#include "Vid17flatCommon.h"
 //#include "Vid17flatHTTPS.h"
@@ -24,8 +23,9 @@ WiFiMulti wifiMulti;
 // Определяем задачи и готовим работу сторожевого таймера 
 #include "v17WdtTask.h"        
 // Подключаем задачи
-#include "v17Base.h"          // 4-3307 принять сообщение нижнего уровня и отправить на сайт
-#include "v17Power.h"         // 4-3511 определить напряжение питания и отправить на сайт
+#include "v17Base.h"   // 7-3307 принять сообщение нижнего уровня и отправить его в очередь на сайт
+#include "v17Https.h"  // 6-4000 отправить сообщение из очереди на сайт
+#include "v17Power.h"  // 5-3511 определить напряжение питания и отправить его в очередь на сайт
 
 void setup() 
 {
@@ -77,7 +77,16 @@ void setup()
   "vBase",                  // Task name
   4096,                     // Stack size
   NULL,                     // Parameters passed to the task function
-  5,                        // Priority
+  7,                        // Priority
+  NULL,                     // Task handle
+  1); 
+  
+  xTaskCreatePinnedToCore(  // Принять сообщение нижнего уровня и отправить на сайт 
+  vHttps,                   // Task function
+  "vHttps",                 // Task name
+  4096,                     // Stack size
+  NULL,                     // Parameters passed to the task function
+  6,                        // Priority
   NULL,                     // Task handle
   1); 
   
@@ -86,7 +95,7 @@ void setup()
   "vPower",                 // Task name
   4096,                     // Stack size
   NULL,                     // Parameters passed to the task function
-  4,                        // Priority
+  5,                        // Priority
   NULL,                     // Task handle
   1); 
 } 

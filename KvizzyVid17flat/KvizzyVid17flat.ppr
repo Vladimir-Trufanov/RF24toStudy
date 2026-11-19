@@ -83,6 +83,10 @@ KvizzyVid17flat
 						.pio\build\nodemcu-32s\FrameworkArduino\wiring_shift.c.o
 						.pio\build\nodemcu-32s\FrameworkArduino\WMath.cpp.o
 						.pio\build\nodemcu-32s\FrameworkArduino\WString.cpp.o
+					-lib225
+						-RF24toStudy
+							.pio\build\nodemcu-32s\lib225\RF24toStudy\RF24.cpp.o
+						.pio\build\nodemcu-32s\lib225\libRF24toStudy.a
 					-lib240
 						-Network
 							.pio\build\nodemcu-32s\lib240\Network\NetworkClient.cpp.o
@@ -103,6 +107,10 @@ KvizzyVid17flat
 							.pio\build\nodemcu-32s\lib326\WiFi\WiFiScan.cpp.o
 							.pio\build\nodemcu-32s\lib326\WiFi\WiFiSTA.cpp.o
 						.pio\build\nodemcu-32s\lib326\libWiFi.a
+					-libdfc
+						-SPI
+							.pio\build\nodemcu-32s\libdfc\SPI\SPI.cpp.o
+						.pio\build\nodemcu-32s\libdfc\libSPI.a
 					-src
 						.pio\build\nodemcu-32s\src\main.cpp.o
 					.pio\build\nodemcu-32s\.sconsign311.dblite
@@ -114,6 +122,10 @@ KvizzyVid17flat
 					.pio\build\nodemcu-32s\libFrameworkArduino.a
 					.pio\build\nodemcu-32s\partitions.bin
 				.pio\build\project.checksum
+			-libdeps
+				-nodemcu-32s
+					.pio\libdeps\nodemcu-32s\integrity.dat
+					.pio\libdeps\nodemcu-32s\RF24toStudy.pio-link
 		-.vscode
 			.vscode\c_cpp_properties.json
 			.vscode\extensions.json
@@ -121,6 +133,7 @@ KvizzyVid17flat
 		+include
 			include\README
 			include\v17Base.h
+			include\v17Https.h
 			include\v17Power.h
 			include\v17WdtTask.h
 			include\v17WiFi.h
@@ -129,7 +142,7 @@ KvizzyVid17flat
 			include\Vid17flatHTTPS.h
 		-lib
 			lib\README
-		+src
+		-src
 			src\main.cpp
 		-test
 			test\README
@@ -138,17 +151,35 @@ KvizzyVid17flat
 		KvizzyVid17flat.code-workspace
 		KvizzyVid17flat.fzz
 		KvizzyVid17flat.md
+		KvizzyVid17flat.ppr
 		KvizzyVid17flat_ESP32C3.fzz
+		nrf24l01-pinout.jpg
 		platformio.ini
 [Open project files]
 0=src\main.cpp
 1=include\v17WiFi.h
+2=include\v17Https.h
+3=include\v17Base.h
+4=include\v17Power.h
+5=include\v17WdtTask.h
 [Selected Project Files]
 Main=
-Selected=src\main.cpp
+Selected=include\v17WdtTask.h
 [src\main.cpp]
-TopLine=94
-Caret=1,123
+TopLine=108
+Caret=4,89
 [include\v17WiFi.h]
 TopLine=16
 Caret=80,30
+[include\v17Https.h]
+TopLine=1
+Caret=15,26
+[include\v17Base.h]
+TopLine=1
+Caret=44,4
+[include\v17Power.h]
+TopLine=7
+Caret=7,3
+[include\v17WdtTask.h]
+TopLine=39
+Caret=15,43
