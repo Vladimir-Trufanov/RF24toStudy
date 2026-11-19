@@ -13,6 +13,7 @@ DontOpen=0
 AbsolutePath=0
 FileFormat=0
 ProjectFilesOnly=0
+HTServer=localhost
 Extensions=*.*
 [Project tree]
 KvizzyVid17flat
@@ -144,10 +145,10 @@ KvizzyVid17flat
 1=include\v17WiFi.h
 [Selected Project Files]
 Main=
-Selected=include\v17WiFi.h
+Selected=src\main.cpp
 [src\main.cpp]
-TopLine=156
-Caret=1,28
+TopLine=94
+Caret=1,123
 [include\v17WiFi.h]
-TopLine=12
-Caret=1,25
+TopLine=16
+Caret=80,30
