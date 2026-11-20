@@ -24,7 +24,7 @@ WiFiMulti wifiMulti;
 #include "v17WdtTask.h"        
 // Подключаем задачи
 #include "v17Base.h"   // 7-3307 принять сообщение нижнего уровня и отправить его в очередь на сайт
-#include "v17Https.h"  // 6-4000 отправить сообщение из очереди на сайт
+#include "v17Https.h"  // 6-5000 отправить сообщение из очереди на сайт
 #include "v17Power.h"  // 5-3511 определить напряжение питания и отправить его в очередь на сайт
 
 void setup() 
@@ -60,13 +60,14 @@ void setup()
   WiFi.onEvent(onWiFiEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 
   // Настраиваем интервал синхронизации, имя сервера, режим работы и часовой пояс
-  //initSNTP();
+  initSNTP();
   // Ожидаем синхронизацию 
-  //wait4SNTP();
+  wait4SNTP();
   // Изменяем данные о перезагрузках контроллера            
   //setReload(); 
-  // Готовим параметры сетей для CameraWebServer   
-  //IniSayWiFi();
+
+  // 
+  //setClock();
 
   // Инициируеи прием сообщений по nRF24L01
   iniradio();
@@ -125,8 +126,6 @@ void loop()
   // Получаем значение напряжения источника питания схемы (Вольт) 
   float Vbattf = getVbattf();
   Serial.println(Vbattf, 3);
-  saymem();
-  vTaskDelay(3000/portTICK_PERIOD_MS);
   
   // Перезагружаем контроллер в случае потери сети WiFi
   if (!isWiFi)
@@ -135,8 +134,66 @@ void loop()
     ESP.restart();
   }
 
-  // Принять сообщение по nRF24L01
-  //getradiomess(); 
+  /*   
+  NetworkClientSecure *client = new NetworkClientSecure;
+  if (client) 
+  {
+    client->setCACert(rootCACertificate);
+
+    {
+      // Add a scoping block for HTTPClient https to make sure it is destroyed before NetworkClientSecure *client is
+      HTTPClient https;
+
+      Serial.print("[HTTPS] begin...\n");
+      
+      // if (https.begin(*client, "https://jigsaw.w3.org/HTTP/connection.html")) 
+      if (https.begin(*client, "https://kwinflat.ru/Vid17b/")) 
+      {  // HTTPS
+        Serial.print("[HTTPS] GET...\n");
+        // start connection and send HTTP header
+        int httpCode = https.GET();
+
+        // httpCode will be negative on error
+        if (httpCode > 0) 
+        {
+          // HTTP header has been send and Server response header has been handled
+          Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+
+          // file found at server
+          if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) 
+          {
+            String payload = https.getString();
+            Serial.println("--------- Начало страницы --------------------------------------------");
+            Serial.println(payload);
+            Serial.println("--------- Завершение страницы ----------------------------------------");
+          }
+        } 
+        else 
+        {
+          Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+        }
+
+        https.end();
+      } 
+      else 
+      {
+        Serial.printf("[HTTPS] Unable to connect\n");
+      }
+
+      // End extra scoping block
+    }
+
+    delete client;
+  } 
+  else 
+  {
+    Serial.println("Unable to create client");
+  }
+  */
+
+  Serial.println();
+  saymem();
+  vTaskDelay(1500/portTICK_PERIOD_MS);
 
   // Определяем время работы цикла задачи
   tLoop=millis()-tTime;
