@@ -18,10 +18,7 @@
 // библиотекой ядра ESP32 по умолчанию и не требуют установки
 #include "esp_sntp.h"
 
-//#include "ArduinoNvs.h"
-
 static bool isWiFi=false;          // true - WiFi подключен
-// static uint32_t boot_count;     // счетчик перезапусков
 
 // Настроить интервал синхронизации, имя сервера, режим работы и часовой пояс
 void initSNTP(); 
@@ -251,46 +248,6 @@ void WiFi_connect(WiFiMulti wifiMulti, const char* mess)
 }
 
 /*
-// Изменить данные о перезагрузках контроллера 
-void setReload(); 
-*/
-
-/*
-// ****************************************************************************
-// *              Изменить данные о перезагрузках контроллера                 *
-// ****************************************************************************
-void setReload() 
-{
-  // Инициируем NVS
-  NVS.begin();
-  // После каждой перезагрузки увеличиваем счётчик загрузок и выводим в терминал.
-  if (NVS.getInt("boot_count")) 
-  {
-    boot_count = NVS.getInt("boot_count"); 
-    boot_count++;
-  }
-  else 
-  {
-    Serial.println("Еще нет данных о перезагрузках контроллера!");
-    boot_count = 1; 
-  }
-  NVS.setInt("boot_count", boot_count);
-  // Выбираем данные о текущем времени и дате
-  struct tm timeinfo;
-  getLocalTime(&timeinfo);
-  // Формируем и записываем дату
-  char divreload[12];
-  strftime(divreload, sizeof(divreload), "%d.%m.%Y", &timeinfo);
-  String datereload=String(divreload);
-  NVS.setString("datereload", datereload);
-  // Формируем и записываем время
-  char tivreload[10];
-  strftime(tivreload, sizeof(tivreload), "%H:%M:%S", &timeinfo);
-  String timereload=String(tivreload);
-  NVS.setString("timereload", timereload);
-}
-
-
 // ****************************************************************************
 // *            Подготовить параметры сетей для CameraWebServer               *
 // * (инициировать работу контроллера,как станции WiFi и с собственной сетью) *

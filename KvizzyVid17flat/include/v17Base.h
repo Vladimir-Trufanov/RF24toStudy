@@ -70,8 +70,8 @@ void getradiomess()
 void iniradio() 
 {
    Serial.println("Начало прослушивания !!!");      
-   radio.begin();            // инициировали работу nRF24L01
-   radio.setChannel(0x6f);   // установили канал
+   radio.begin();                    // инициировали работу nRF24L01
+   radio.setChannel(0x6f);           // установили канал
 
    radio.openReadingPipe(0, pipeIn); // открыли "трубу" чтения
    radio.startListening();           // начали прослушивать

@@ -2,12 +2,28 @@
  * 
  *                    Определить задачи и обеспечить работу сторожевого таймера 
  * 
- * v1.0.1, 15.11.2026                                 Автор:      Труфанов В.Е.
+ * v1.0.2, 21.11.2026                                 Автор:      Труфанов В.Е.
  * Copyright © 2026 tve                               Дата создания: 15.11.2026
 **/
 
 #pragma once            
 #include <Arduino.h>
+#include "ArduinoNvs.h"
+
+static uint32_t boot_count;  // счетчик перезапусков
+
+// Параметры локальной и собственной сети контроллера для передачи в html
+//char hssid[12];     // не более 11 символов, латиница
+////char hlocalIP[18];
+//char hsoftAPIP[18];
+// Данные о последней перезагрузке контроллера для передачи в html
+// <tr><td class="tnet" id="dnreload"> Дата     </td><td class="tcam" id="dvreload"> 28.03.2026 </td></tr> 
+// <tr><td class="tnet" id="tnreload"> Время    </td><td class="tcam" id="tvreload"> 08-36-58   </td></tr> 
+// <tr><td class="tnet" id="nnreload"> Загрузка </td><td class="tcam" id="nvreload"> 12         </td></tr> 
+//char nvreload[8];
+//char dvreload[12];
+//char tvreload[10];
+
 
 // Определяем число, которое будет считываться в основном цикле
 // с последовательного порта для зацикливания задач
@@ -24,8 +40,12 @@ hw_timer_t *timer = NULL;
 // Инициируем спинлок критической секции в обработчике таймерного прерывания
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
-void MimicMCUhangEvent(String NameTask); // имитирование зависания задачи 
-void iniWdt();                           // инициирование сторожевого таймера 
+// Инициировать сторожевой таймер 
+void iniWdt();                           
+// Имитировать зависания задачи 
+void MimicMCUhangEvent(String NameTask); 
+// Изменить данные о перезагрузках контроллера 
+void setReload(); 
 
 // ***************************************************************************
 // *                  Обработать прерывание сторожевого таймера              *
@@ -81,6 +101,58 @@ void MimicMCUhangEvent(String NameTask)
       Serial.println(": зависание задачи!!!");
       vTaskDelay(1000/portTICK_PERIOD_MS);
    }
+}
+// ****************************************************************************
+// *              Изменить данные о перезагрузках контроллера                 *
+// ****************************************************************************
+void setReload() 
+{
+  // Инициируем NVS
+  NVS.begin();
+  // После каждой перезагрузки увеличиваем счётчик загрузок и выводим в терминал.
+  if (NVS.getInt("boot_count")) 
+  {
+    boot_count = NVS.getInt("boot_count"); 
+    boot_count++;
+  }
+  else 
+  {
+    Serial.println("Еще нет данных о перезагрузках контроллера!");
+    boot_count = 1; 
+  }
+  NVS.setInt("boot_count", boot_count);
+  // Выбираем данные о текущем времени и дате
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  // Формируем и записываем дату
+  char dvreload[12];
+  strftime(dvreload, sizeof(dvreload), "%d.%m.%Y", &timeinfo);
+  String datereload=String(dvreload);
+  NVS.setString("datereload", datereload);
+  // Формируем и записываем время
+  char tvreload[10];
+  strftime(tvreload, sizeof(tvreload), "%H:%M:%S", &timeinfo);
+  String timereload=String(tvreload);
+  NVS.setString("timereload", timereload);
+
+  // Выводим обновленную информацию
+
+  // Выбираем номер последней перезагрузки
+  char nvreload[8];
+  //sprintf(nvreload, "%d", NVS.getInt("boot_count")); 
+  sprintf(nvreload, "%lld", NVS.getInt("boot_count")); 
+  // Выбираем дату последней перезагрузки
+  //String datereload = NVS.getString("datereload");
+  //datereload.toCharArray(dvreload,datereload.length()+1); 
+  // Инициируем время последней перезагрузки
+  //String timereload = NVS.getString("timereload");
+  //timereload.toCharArray(tvreload,timereload.length()+1); 
+
+  //Serial.print("IP - собственной сети:  ");  Serial.print(hsoftAPIP); Serial.print(" "); Serial.println(soft_ap_ssid);
+  //Serial.print("IP - рабочей станции:   ");  Serial.print(hlocalIP);  Serial.print(" "); Serial.println(hssid);
+  
+  Serial.print("Последняя перезагрузка: ");  Serial.print(nvreload);  
+  Serial.print(" ["); Serial.print(dvreload); Serial.print(", "); Serial.print(tvreload); Serial.println("]");
 }
 
 // *********************************************************** v17WdtTask.h ***

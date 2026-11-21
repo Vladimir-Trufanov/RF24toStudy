@@ -165,12 +165,12 @@ KvizzyVid17flat
 6=include\ResetReason.h
 [Selected Project Files]
 Main=
-Selected=include\v17WdtTask.h
+Selected=include\v17WiFi.h
 [src\main.cpp]
-TopLine=8
+TopLine=46
 Caret=16,8
 [include\v17WiFi.h]
-TopLine=16
+TopLine=1
 Caret=27,30
 [include\v17Https.h]
 TopLine=22
@@ -185,5 +185,5 @@ Caret=7,3
 TopLine=48
 Caret=23,52
 [include\ResetReason.h]
-TopLine=141
-Caret=1,180
+TopLine=123
+Caret=1,162
