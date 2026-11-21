@@ -33,16 +33,9 @@ void setup()
   Serial.begin(115200);
   vTaskDelay(5000/portTICK_PERIOD_MS);
   
-  Serial.println("Причина сброса CPU0:");
-  print_reset_reason(rtc_get_reset_reason(0));
-  verbose_print_reset_reason(rtc_get_reset_reason(0));
-
-  Serial.println("Причина сброса CPU1:");
-  print_reset_reason(rtc_get_reset_reason(1));
-  verbose_print_reset_reason(rtc_get_reset_reason(1));
+  Serial.print("Причина сброса CPU0: "); print_reset_reason(rtc_get_reset_reason(0));
+  Serial.print("Причина сброса CPU1: "); print_reset_reason(rtc_get_reset_reason(1));
   
-  PrintResetReason();
-
   // Назначаем контакт A0 на приём показаний напряжения питания
   pinMode(A0, INPUT); 
 
