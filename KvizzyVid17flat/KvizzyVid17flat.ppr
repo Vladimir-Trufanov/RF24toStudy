@@ -162,18 +162,18 @@ KvizzyVid17flat
 3=include\v17Base.h
 4=include\v17Power.h
 5=include\v17WdtTask.h
-6=..\..\PlatformIO_Lib\_Study\ESP32\BasicHttpsClient305_PIO\src\main.cpp
+6=include\ResetReason.h
 [Selected Project Files]
 Main=
-Selected=include\v17Https.h
+Selected=src\main.cpp
 [src\main.cpp]
-TopLine=167
-Caret=3,200
+TopLine=19
+Caret=16,8
 [include\v17WiFi.h]
 TopLine=16
 Caret=27,30
 [include\v17Https.h]
-TopLine=26
+TopLine=22
 Caret=6,22
 [include\v17Base.h]
 TopLine=1
@@ -182,8 +182,8 @@ Caret=44,4
 TopLine=3
 Caret=7,3
 [include\v17WdtTask.h]
-TopLine=39
+TopLine=4
 Caret=15,43
-[..\..\PlatformIO_Lib\_Study\ESP32\BasicHttpsClient305_PIO\src\main.cpp]
-TopLine=148
-Caret=1,187
+[include\ResetReason.h]
+TopLine=139
+Caret=1,200

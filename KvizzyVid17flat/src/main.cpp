@@ -5,7 +5,7 @@
 // *         снимать значение напряжения на промежуточном уровне и передавать *
 // *        по Internet WiFi на сайт (выполнять работу промежуточного уровня) * 
 // *                                                                          *
-// * v1.2.6, 19.11.2026                            Автор:       Труфанов В.Е. *
+// * v1.2.8, 21.11.2026                            Автор:       Труфанов В.Е. *
 // * Copyright © 2026 tve                          Дата создания:  19.10.2026 *
 // ****************************************************************************
 
@@ -15,6 +15,7 @@
 #include <WiFiMulti.h>
 WiFiMulti wifiMulti;
 #include "v17WiFi.h"
+#include "ResetReason.h"
 
 //#include "Vid17flatDefine.h"
 //#include "Vid17flatCommon.h"
@@ -31,6 +32,16 @@ void setup()
 {
   Serial.begin(115200);
   vTaskDelay(5000/portTICK_PERIOD_MS);
+  
+  Serial.println("Причина сброса CPU0:");
+  print_reset_reason(rtc_get_reset_reason(0));
+  verbose_print_reset_reason(rtc_get_reset_reason(0));
+
+  Serial.println("Причина сброса CPU1:");
+  print_reset_reason(rtc_get_reset_reason(1));
+  verbose_print_reset_reason(rtc_get_reset_reason(1));
+  
+  PrintResetReason();
 
   // Назначаем контакт A0 на приём показаний напряжения питания
   pinMode(A0, INPUT); 
@@ -133,63 +144,6 @@ void loop()
     Serial.println("Перезагружаем контроллер после потери сети WiFi");
     ESP.restart();
   }
-
-  /*   
-  NetworkClientSecure *client = new NetworkClientSecure;
-  if (client) 
-  {
-    client->setCACert(rootCACertificate);
-
-    {
-      // Add a scoping block for HTTPClient https to make sure it is destroyed before NetworkClientSecure *client is
-      HTTPClient https;
-
-      Serial.print("[HTTPS] begin...\n");
-      
-      // if (https.begin(*client, "https://jigsaw.w3.org/HTTP/connection.html")) 
-      if (https.begin(*client, "https://kwinflat.ru/Vid17b/")) 
-      {  // HTTPS
-        Serial.print("[HTTPS] GET...\n");
-        // start connection and send HTTP header
-        int httpCode = https.GET();
-
-        // httpCode will be negative on error
-        if (httpCode > 0) 
-        {
-          // HTTP header has been send and Server response header has been handled
-          Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-
-          // file found at server
-          if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) 
-          {
-            String payload = https.getString();
-            Serial.println("--------- Начало страницы --------------------------------------------");
-            Serial.println(payload);
-            Serial.println("--------- Завершение страницы ----------------------------------------");
-          }
-        } 
-        else 
-        {
-          Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-        }
-
-        https.end();
-      } 
-      else 
-      {
-        Serial.printf("[HTTPS] Unable to connect\n");
-      }
-
-      // End extra scoping block
-    }
-
-    delete client;
-  } 
-  else 
-  {
-    Serial.println("Unable to create client");
-  }
-  */
 
   Serial.println();
   saymem();
