@@ -22,7 +22,22 @@ char* IntToChar(uint32_t numbIn);
 void makeHumiTemp(RF24 radio); 
 // Сформировать и отправить сообщения по уровню воды и напряжению питания 
 void makeWaterPower(RF24 radio); 
-
+// Смоделировать значение температуры 
+#if (isDebug==true)
+  int valtemp=0; int valhumi=0;
+  int setTemp()
+  {
+    valtemp++;
+    if (valtemp>990) valtemp=0; 
+    return valtemp;
+  }
+  int setHumi()
+  {
+    valhumi++;
+    if (valhumi>99) valhumi=0; 
+    return valhumi;
+  }
+#endif
 // ****************************************************************************
 // *            Преобразовать беззнаковое  целое в строку символов            *
 // ****************************************************************************
@@ -46,11 +61,21 @@ void makeHumiTemp(RF24 radio)
   // Округляем влажность до целого
   float humi = dht.getHumi(true); humi = round(humi);
   // Отрезаем целое
-  int jhumi=(int)humi;         // "46", процент влажности - "Влажность = 46%"
+  int jhumi;                   // "46", процент влажности - "Влажность = 46%"   
+  #if (isDebug==true)
+    jhumi=setHumi();
+  #else
+    jhumi=(int)humi;    
+  #endif
   // Округляем температуру до десятых долей
   float tempC = dht.getTemp(true); tempC = round(tempC*10.0)/10.0;
   // Отрезаем целое десятых долей 
-  int jtempC=(int)(tempC*10);  // "248", температура в десятых градусах цельсия - "Температура = 24.8°C"       
+  int jtempC;                  // "248", температура в десятых градусах цельсия - "Температура = 24.8°C"       
+  #if (isDebug==true)
+    jtempC=setTemp();
+  #else
+    jtempC=(int)(tempC*10);      
+  #endif
   // Чистим строку сообщения
   memset(text,'\0',32); 
   // String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}"; Serial.print(s_DHT11+"\n ");  
