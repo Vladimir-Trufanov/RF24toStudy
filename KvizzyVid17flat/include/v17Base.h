@@ -36,7 +36,10 @@ void vBase(void* pvParameters)
       // Принимаем сообщение по nRF24L01
       getradiomess(); 
 
-      vTaskDelay(2500/portTICK_PERIOD_MS);
+      String inMess=queMessa.Send("Сообщение из задачи");
+      if (inMess!=tisOk) Serial.println(inMess); 
+
+      vTaskDelay(7500/portTICK_PERIOD_MS);
       // Определяем время работы цикла задачи
       tBase=millis()-tTime;
       // Отмечаем завершение задачи для сторожевого таймера

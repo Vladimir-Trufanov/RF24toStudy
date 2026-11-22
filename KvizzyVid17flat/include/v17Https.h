@@ -50,6 +50,8 @@ JJUEeKgDu+6B5dpffItKoZB0JaezPkvILFa9x8jvOOJckvB595yEunQtYQEgfn7R
 -----END CERTIFICATE-----
 )string_literal";
 
+char tBuffer[42]; // буфер сообщения на 41 символ и завершающий ноль
+
 void vHttps(void* pvParameters) 
 {
    for ( ;; )
@@ -58,6 +60,11 @@ void vHttps(void* pvParameters)
       iHttps++;
       uint32_t tTime=millis();
       printTime(); 
+
+      // Выбираем сообщение из очереди
+      strcpy(tBuffer, queMessa.Receive());
+      Serial.print("Прием: ");
+      Serial.println(tBuffer);
 
       /*
       NetworkClientSecure *client = new NetworkClientSecure;
