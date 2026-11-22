@@ -28,6 +28,10 @@ WiFiMulti wifiMulti;
 #include "v17Https.h"  // 6-5000 отправить сообщение из очереди на сайт
 #include "v17Power.h"  // 5-3511 определить напряжение питания и отправить его в очередь на сайт
 
+// Определяем объект для синхронизации времени 
+#include "AttachSNTP.h"
+TAttachSNTP oSNTP;
+
 void setup() 
 {
   Serial.begin(115200);
@@ -61,10 +65,9 @@ void setup()
   // Внутри функции-обработчика определяется, какое именно событие произошло, и какие действия должны выполниться)
   WiFi.onEvent(onWiFiEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 
-  // Настраиваем интервал синхронизации, имя сервера, режим работы и часовой пояс
-  initSNTP();
-  // Ожидаем синхронизацию 
-  wait4SNTP();
+  // Синхронизируем время с интервалом по умолчанию 60 мин
+  oSNTP.Create();
+
   // Изменяем данные о перезагрузках контроллера в NVS
   // (после синхронизации времени)   
   setReload(); 
@@ -127,8 +130,8 @@ void loop()
   }
    
   // Получаем значение напряжения источника питания схемы (Вольт) 
-  float Vbattf = getVbattf();
-  Serial.println(Vbattf, 3);
+  //float Vbattf = getVbattf();
+  //Serial.println(Vbattf, 3);
   
   // Перезагружаем контроллер в случае потери сети WiFi
   if (!isWiFi)
@@ -138,7 +141,7 @@ void loop()
   }
 
   Serial.println();
-  saymem();
+  //saymem();
   vTaskDelay(1500/portTICK_PERIOD_MS);
 
   // Определяем время работы цикла задачи

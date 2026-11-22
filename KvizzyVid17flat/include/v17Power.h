@@ -21,7 +21,7 @@ void vPower(void* pvParameters)
       iPower++;
       uint32_t tTime=millis();
       // Выполняем задачу
-      Serial.println("vPower");
+      // Serial.println("vPower");
       vTaskDelay(500/portTICK_PERIOD_MS);
       // Определяем время работы цикла задачи
       tPower=millis()-tTime;

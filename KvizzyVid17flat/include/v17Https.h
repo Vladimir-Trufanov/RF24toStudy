@@ -59,6 +59,7 @@ void vHttps(void* pvParameters)
       uint32_t tTime=millis();
       printTime(); 
 
+      /*
       NetworkClientSecure *client = new NetworkClientSecure;
       if (client) 
       {
@@ -102,6 +103,8 @@ void vHttps(void* pvParameters)
       {
         Serial.println("Не удалось создать защищенного клиента");
       }
+      */
+     
       vTaskDelay(5000/portTICK_PERIOD_MS);
       // Определяем время работы цикла задачи
       tHttps=millis()-tTime;
