@@ -44,19 +44,21 @@ void vBase(void* pvParameters)
 
       // Принимаем сообщение по nRF24L01
       getradiomess(); 
-      String jsonMess="{"+String(text)+"}";   
-      Serial.print("Радиоприём: "); Serial.println(jsonMess);        
-      // Выполняем разборку json для определения типа сообщения
-      Deser(jsonMess);
-
-      // num=6 - влажность и температура с датчика DHT22 в подвале
-      // ---------------------------------------------------------------------
-      // http://localhost:100/State/?cycle=114&num=6&ctrl=207&sjson={"dht22":{"humi":87,"tempC":264}}   <-запрос
-      // <State>{"cycle":114}{"num":6}{"ctrl":207}{"sjson":{dht22":{"humi":87,"tempC":264}}}</State>    <-ответ
-      String parm="?cycle="+String(iBase)+"&num="+String(num)+"&ctrl=207&sjson="+jsonMess;
-      String retMess=queMessa.Send(parm);
-      if (retMess!=tisOk) Serial.println(retMess); 
-
+      String jsonMess="{"+String(text)+"}"; 
+      // Обрабатываем только поступившие сообщения
+      if (jsonMess.length()>2)  
+      {
+        Serial.print("Радиоприём: "); Serial.println(jsonMess);        
+        // Выполняем разборку json для определения типа сообщения
+        Deser(jsonMess);
+        // num=6 - влажность и температура с датчика DHT22 в подвале
+        // ---------------------------------------------------------------------
+        // http://localhost:100/State/?cycle=114&num=6&ctrl=207&sjson={"dht22":{"humi":87,"tempC":264}}   <-запрос
+        // <State>{"cycle":114}{"num":6}{"ctrl":207}{"sjson":{dht22":{"humi":87,"tempC":264}}}</State>    <-ответ
+        String parm="?cycle="+String(iBase)+"&num="+String(num)+"&ctrl=207&sjson="+jsonMess;
+        String retMess=queMessa.Send(parm);
+        if (retMess!=tisOk) Serial.println(retMess); 
+      }
       vTaskDelay(7500/portTICK_PERIOD_MS);
       // Определяем время работы цикла задачи
       tBase=millis()-tTime;
@@ -73,7 +75,6 @@ void Deser(String Text)
 {
   // Преобразовываем String-ответ в chars-ответ для парсинга
   int str_len = Text.length()+1; 
-  Serial.print("str_len: "); Serial.println(str_len);
   char json[str_len];
   Text.toCharArray(json, str_len);
   // Создаем объект поиска соответствий
@@ -130,7 +131,7 @@ void match_callback(const char * match,const unsigned int length,const MatchStat
   String sjson = String(match);
   sjson = sjson.substring(0,length);
   // Трассируем выбранный json
-  Serial.print("sjson: "); Serial.println(sjson); 
+  // Serial.print("sjson: "); Serial.println(sjson); 
 
   JsonDocument doc;
   deserializeJson(doc, sjson);
@@ -138,7 +139,6 @@ void match_callback(const char * match,const unsigned int length,const MatchStat
   String water=doc["water"];
   if (water != "null")
   {
-   Serial.println("Найдена вода!!!");
    num=7;  
    /*
     inlight = doc["led4"]["light"];
@@ -153,7 +153,6 @@ void match_callback(const char * match,const unsigned int length,const MatchStat
   String vcc=doc["vcc"];
   if (vcc != "null")
   {
-   Serial.println("Найден vcc!!!");  
    num=6;  
    /*
     mode4 = doc["intrv"]["mode4"];
@@ -168,7 +167,6 @@ void match_callback(const char * match,const unsigned int length,const MatchStat
   String dht22=doc["dht22"];
   if (dht22 != "null")
   {
-   Serial.println("Найден dht22!!!");  
    num=8;  
   }
 }

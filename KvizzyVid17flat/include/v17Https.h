@@ -50,7 +50,7 @@ JJUEeKgDu+6B5dpffItKoZB0JaezPkvILFa9x8jvOOJckvB595yEunQtYQEgfn7R
 -----END CERTIFICATE-----
 )string_literal";
 
-char tBuffer[42]; // буфер сообщения на 41 символ и завершающий ноль
+char tBuffer[128]; // буфер сообщения на 127 символов и завершающий ноль
 
 void vHttps(void* pvParameters) 
 {
@@ -63,55 +63,73 @@ void vHttps(void* pvParameters)
 
       // Выбираем сообщение из очереди
       strcpy(tBuffer, queMessa.Receive());
-      Serial.print("Из очереди: "); Serial.println(tBuffer);
-      String addr="https://kwinflat.ru/Vid17b/";
-      //String sql=
-
-      /*
-      NetworkClientSecure *client = new NetworkClientSecure;
-      if (client) 
+      // Формируем запрос к странице "State" сайта, если сообщение получено
+      String parm=String(tBuffer);
+      if (parm!=tQueueEmptyReceive)
       {
-        client->setCACert(rootCACertificate);
+        if (parm==tErrorReceiving)
         {
-          HTTPClient https;
-          Serial.println("[HTTPS] начат сеанс ...");
-          if (https.begin(*client, "https://kwinflat.ru/Vid17b/")) 
-          {  
-            Serial.println("[HTTPS] GET-запрос отправляется ...");
-            // Запускаем соединение и отправляем HTTP-заголовки
-            int httpCode = https.GET();
-            // Если ответ положительный (HTTP-запрос обработан сервером и получен ответ от него)
-            if (httpCode > 0) 
-            {
-              Serial.printf("[HTTPS] код ответа... code: %d\n", httpCode);
-              // 200 или 301, хорошо
-              if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) 
+          // Формируем параметр об ошибке приема
+          // http://localhost:100/State/?cycle=1953&num=9&ctrl=206&sjson={"error":"tQueueEmptyReceive"}     
+          parm="?cycle="+String(iHttps)+"&num=9&ctrl=207&sjson={\"error\":\"tQueueEmptyReceive\"}";
+        }
+        // -------------------------------------------------------------------------------------------------------------------
+        // http://localhost:100/State/?cycle=21&num=5&ctrl=204&sjson={"trkpt":{"lat":61856308,"lon":33396584,"color":"white"}}
+        // https://kwinflat.ru/State/?cycle=7&num=5&ctrl=203&sjson={"trkpt":{"lat":52518611,"lon":13376111,"color":"yellow"}}
+        // http://localhost:100/State/?cycle=114&num=6&ctrl=207&sjson={"dht22":{"humi":87,"tempC":264}}   
+        // -------------------------------------------------------------------------------------------------------------------
+        Serial.print("Из очереди: "); Serial.println(tBuffer);
+        Serial.print("parm:       "); Serial.println(parm);
+        //String url="https://kwinflat.ru/Vid17b/"+parm;
+        String   url="http://localhost:100/Vid17b/"; //+parm;
+        //String url="http://localhost:100/State/"+parm;
+        Serial.print("url: "); Serial.println(url);
+      
+        NetworkClientSecure *client = new NetworkClientSecure;
+        if (client) 
+        {
+          client->setCACert(rootCACertificate);
+          {
+            HTTPClient https;
+            Serial.println("[HTTPS] начат сеанс ...");
+            if (https.begin(*client, "https://kwinflat.ru/Vid17b/")) 
+            //if (https.begin(*client, url.c_str())) 
+            {  
+              Serial.println("[HTTPS] GET-запрос отправляется ...");
+              // Запускаем соединение и отправляем HTTP-заголовки
+              int httpCode = https.GET();
+              // Если ответ положительный (HTTP-запрос обработан сервером и получен ответ от него)
+              if (httpCode > 0) 
               {
-                String payload = https.getString();
-                Serial.println("--------- Начало страницы --------------------------------------------");
-                Serial.println(payload);
-                Serial.println("--------- Завершение страницы ----------------------------------------");
+                Serial.printf("[HTTPS] код ответа... code: %d\n", httpCode);
+                // 200 или 301, хорошо
+                if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) 
+                {
+                  String payload = https.getString();
+                  Serial.println("--------- Начало страницы --------------------------------------------");
+                  Serial.println(payload);
+                  Serial.println("--------- Завершение страницы ----------------------------------------");
+                }
+              } 
+              // Если ответ отрицательный (ошибка)
+              else 
+              {
+                Serial.printf("[HTTPS] GET... не прошёл, ошибка: %s\n", https.errorToString(httpCode).c_str());
               }
+              https.end();
             } 
-            // Если ответ отрицательный (ошибка)
             else 
             {
-              Serial.printf("[HTTPS] GET... не прошёл, ошибка: %s\n", https.errorToString(httpCode).c_str());
+              Serial.printf("[HTTPS] не удалось подключиться\n");
             }
-            https.end();
-          } 
-          else 
-          {
-            Serial.printf("[HTTPS] не удалось подключиться\n");
           }
+          delete client;
+        } 
+        else 
+        {
+          Serial.println("Не удалось создать защищенного клиента");
         }
-        delete client;
-      } 
-      else 
-      {
-        Serial.println("Не удалось создать защищенного клиента");
       }
-      */
      
       vTaskDelay(5000/portTICK_PERIOD_MS);
       // Определяем время работы цикла задачи
