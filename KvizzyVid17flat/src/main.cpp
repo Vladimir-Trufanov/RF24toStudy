@@ -24,9 +24,7 @@ WiFiMulti wifiMulti;
 TQue queMessa;                                                                           //
 // ========================================================================================                                                                                         
 
-//#include "Vid17flatDefine.h"
-//#include "Vid17flatCommon.h"
-//#include "Vid17flatHTTPS.h"
+#include "v17Define.h"
 
 // Определяем задачи и готовим работу сторожевого таймера 
 #include "v17WdtTask.h"        

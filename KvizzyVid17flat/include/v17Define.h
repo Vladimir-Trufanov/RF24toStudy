@@ -1,9 +1,27 @@
-// ******************************************************* Vid17flatHTTPS.h ***
-// *           Обеспечить передачу запросов с данными на страницу сайта State *
-// *                                                                          *
-// * v4.7.0, 14.11.2026                             Автор:      Труфанов В.Е. *
-// * Copyright © 2024 tve                           Дата создания: 08.10.2024 *
-// ****************************************************************************
+/** Arduino, Esp32-CAM ********************************** Vid17flatDefine.h ***
+ * 
+ *                 Определить переменные и константы исполнительного приложения 
+ *                                    умного хозяйства на контроллере ESP32-CAM
+ * 
+ * v4.5.0, 12.06.2025                                 Автор:      Труфанов В.Е.
+ * Copyright © 2024 tve      sla6en9edged             Дата создания: 26.10.2024
+**/
+
+// Простые числа: https://calculat.io/ru/number/prime/3000--5000
+// Preferences:   https://docs.espressif.com/projects/arduino-esp32/en/latest/tutorials/preferences.html
+
+#pragma once            
+#include <Arduino.h>
+
+// Определяем id текущего контроллера в умном хозяйстве
+#define CONTROLLER 206  // 'Esp32-C3 от подвала'  
+
+// "DachaSad"     - камера для съёмок на природе
+// "OknoNaDorogu" - камера из окна на дорогу
+// "DachaSad"     - ESP32-CAM, контроллер №1
+// "ESP_75C391"   - ESP32-CAM, контроллер №3
+// "ESP_A7E119"   - ESP32-CAM, контроллер №6
+// #define soft_ap_ssid "OtPodvala" 
 
 // 2025-09-04 json-сообщения передаются через параметры запросов и записываются 
 //            в базу данных в полном виде (с фигурными скобками в начале и в 
@@ -110,7 +128,7 @@ $aControllers=[
   [ 203,104,16,'Sim900 в автомобиле'],  
   [ 204,105,17,'Виртуальный контроллер'],  
   [ 205,101,14,'Esp32-CAM на дорогу к даче'],         
-  [ 206,106,18,'Esp32-C3 от подвала'],  
+  [ 206,106,18,'Esp32 от подвала'],  
   [ 207,107,18,'Piranha Pro Mini в подвале'],  
 ];
 
@@ -124,4 +142,71 @@ $aSensorsType=[
 ];
 */
 
-// ******************************************************* Vid17flatHTTPS.h ***
+
+
+
+
+
+/*
+// Управляем включением задач
+#define tmr_LEAD
+#define tmr_STATE   
+#define tmr_STREAM
+
+// Определяем сайт умного хозяйства  
+//String SiteHost="/home/u542632";
+String urlHome   = "https://probatv.ru";
+String urlLead   = "Lead40";
+String urlStream = "Stream40";
+String urlState  = "State40";
+*/
+
+/*
+// Значения чисел, считанных из последовательного порта, 
+// иммитирующие ошибочные ситуации 
+#define loopingLed4      1     // зацикливание задачи vLed4
+#define loopingState     2     // зацикливание задачи vState
+#define loopingCore1     3     // зацикливание задачи vCore1
+#define loopingCore0     4     // зацикливание задачи vCore0
+//#define disaflashing33  51     // отключение мигания контрольного светодиода
+//#define enabflashing33  52     // включение мигания контрольного светодиода
+
+// Управление трассировкой сообщений к State 
+#define enabTrassState   53    // включение трассировки сообщений к State
+#define disaTrassState   54    // отключение 
+*/
+
+/*
+bool toTrassState=false;       // "выключена трассировка сообщений к State" 
+bool fromTrassState=false;     // "выключена трассировка ответов от State" 
+
+// Инициируем счетчики циклов задач (от 0 до 4 294 967 295)
+// и флаги включения режимов работы 
+uint32_t iLead=0;   // запрос к странице Lead
+uint32_t iState=0;  // запрос к странице State
+
+*/
+
+/*
+// Определяем число, которое будет считываться в основном цикле
+// с последовательного порта - команду инициирования зависания процессора
+volatile int iCreateSit;
+// Определяем временную метку сообщения о зависании процессора
+volatile int mitMimic=millis();
+// Имитируем событие зависания процессора
+void MimicMCUhangEvent(String NameTask)
+{
+   while (true)
+   {
+      int mitMimici=millis();
+      if ((mitMimici-mitMimic)>1005)
+      {
+         Serial.print(NameTask);
+         Serial.println(": зависание процессора!!!");
+         mitMimic = mitMimici;
+      }
+   }
+}
+*/
+
+// ****************************************************** Vid17flatDefine.h.h ***

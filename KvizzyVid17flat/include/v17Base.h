@@ -13,10 +13,6 @@
 #include <RF24.h>     
 #include <Regexp.h>
 #include <ArduinoJson.h>
-
-// String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}"; Serial.print(s_DHT11+"\n ");  
-// String s_WATER = "{\"water\":{\"level\":"+String(water)+"}}"; Serial.print(s_WATER+"\n ");  
-// String s_POWER = "{\"vcc\":{\"power\":"+String(jvcc)+"}}"; Serial.print(s_POWER+"\n ");  
  
 // Для NodeMCU-32S
 RF24 radio(22,5);      // указали номера выводов nRF24L01: CE и CSN
@@ -27,101 +23,16 @@ RF24 radio(22,5);      // указали номера выводов nRF24L01: C
 const uint32_t pipeIn = (uint32_t)0x7878787878; 
 
 char text[34];  // буфер радиосообщения
+int num;        // идентификационный номер запроса
 
+// Выполнить выборку всех json-сообщений из строки
+void Deser(String Text);
 // Принять сообщение по nRF24L01
 void getradiomess(); 
 // Инициировать прием сообщений по nRF24L01
 void iniradio();
-
-// ****************************************************************************
-// *    Выбрать и разобрать текущее json-сообщение из ответа страницы Lead,   *
-// *                 сохранить значения в постоянной памяти                   *
-// ****************************************************************************
-void match_callback(const char * match,const unsigned int length,const MatchState & ms)
-{
-  //Prefs.begin("KvizzyPrefs", false);
-  // Выбираем очередной найденный фрагмент
-  // {"led4":{"light":25,"time":1996},"intrv":{"mode4":6900,"img":1001,"tempvl":3003,"lumin":2002,"bar":5005}}
-  String sjson = String(match);
-  sjson = sjson.substring(0,length);
-  // Трассируем выбранный json
-  // Serial.print("sjson: "); Serial.println(sjson); 
-
-  JsonDocument doc;
-  deserializeJson(doc, sjson);
-
-  // Определяемся и обрабатываем команду по режиму вспышки
-  String water=doc["water"];
-  if (water != "null")
-  {
-   Serial.println("Найдена вода!!!");  
-  /*
-    inlight = doc["led4"]["light"];
-    Prefs.putInt("inlight",inlight);
-    // Serial.print("Prefs.inlight: "); Serial.println(Prefs.getInt("inlight"));
-
-    intime = doc["led4"]["time"];
-    Prefs.putInt("intime",intime);
-    // Serial.print("Prefs.intime: "); Serial.println(Prefs.getInt("intime"));
-   */
-  }
-  // Определяемся и обрабатываем команду по интервалам сообщений
-  String intrv=doc["intrv"];
-  if (intrv != "null")
-  {
-   /*
-    mode4 = doc["intrv"]["mode4"];
-    Prefs.putInt("mode4",mode4);
-    // Serial.print("Prefs.mode4: "); Serial.println(Prefs.getInt("mode4"));
-
-    img = doc["intrv"]["img"];
-    Prefs.putInt("img",img);
-    // Serial.print("Prefs.img: "); Serial.println(Prefs.getInt("img"));
-
-    tempvl = doc["intrv"]["tempvl"];
-    Prefs.putInt("tempvl",tempvl);
-    // Serial.print("Prefs.tempvl: "); Serial.println(Prefs.getInt("tempvl"));
-
-    lumin = doc["intrv"]["lumin"];
-    Prefs.putInt("lumin",lumin);
-    // Serial.print("Prefs.lumin: "); Serial.println(Prefs.getInt("lumin"));
-
-    bar = doc["intrv"]["bar"];
-    Prefs.putInt("bar",bar);
-    // Serial.print("Prefs.bar: "); Serial.println(Prefs.getInt("bar"));
-    */
-  }
-  // Закрываем свойства
-  //Prefs.end();
-  
-  //String vintrv=doc["vintrv"];
-  //Serial.print("vintrv: "); Serial.println(vintrv);
-  //Serial.print("vintrv.length(): "); Serial.println(vintrv.length());
-}
-
-
-// ****************************************************************************
-// *               Выполнить выборку всех json-сообщений из строки            *
-// ****************************************************************************
-void Deser(String Text)
-{
-  // Преобразовываем String-ответ в chars-ответ для парсинга
-  int str_len = Text.length()+1; 
-  char json[str_len];
-  Text.toCharArray(json, str_len);
-  // Создаем объект поиска соответствий
-  MatchState ms(json);
-  // Формируем регулярное выражение ("соответствие") для поиска json-сообщений:
-  // <Lead>{"led4":{"light":25,"time":1996},"intrv":{"mode4":6900,"img":1001,"tempvl":3003,"lumin":2002,"bar":5005}}</Lead>
-  const char * match="{[{\"a-z0-9:,%[}%]]*}";
-  // Выполняем поиск по соответствию
-  int count = ms.GlobalMatch(match,match_callback);
-  Serial.print("count: "); Serial.println(count);
-}
-
-
-
-
+// Разобрать json-сообщение 
+void match_callback(const char * match,const unsigned int length,const MatchState & ms);
 
 void vBase(void* pvParameters) 
 {
@@ -133,18 +44,17 @@ void vBase(void* pvParameters)
 
       // Принимаем сообщение по nRF24L01
       getradiomess(); 
-      //Serial.print("Радиоприём: "); Serial.println(text);        
       String jsonMess="{"+String(text)+"}";   
       Serial.print("Радиоприём: "); Serial.println(jsonMess);        
       // Выполняем разборку json для определения типа сообщения
       Deser(jsonMess);
 
-      //"?cycle=114&num=6&ctrl=207&sjson="+String(text); 
-   
-      // ?cycle=114&num=6&ctrl=207&sjson=
-
-      //String retMess=queMessa.Send("Сообщение из задачи");
-      String retMess=queMessa.Send(jsonMess);
+      // num=6 - влажность и температура с датчика DHT22 в подвале
+      // ---------------------------------------------------------------------
+      // http://localhost:100/State/?cycle=114&num=6&ctrl=207&sjson={"dht22":{"humi":87,"tempC":264}}   <-запрос
+      // <State>{"cycle":114}{"num":6}{"ctrl":207}{"sjson":{dht22":{"humi":87,"tempC":264}}}</State>    <-ответ
+      String parm="?cycle="+String(iBase)+"&num="+String(num)+"&ctrl=207&sjson="+jsonMess;
+      String retMess=queMessa.Send(parm);
       if (retMess!=tisOk) Serial.println(retMess); 
 
       vTaskDelay(7500/portTICK_PERIOD_MS);
@@ -156,6 +66,26 @@ void vBase(void* pvParameters)
    }
 }
 
+// ****************************************************************************
+// *               Выполнить выборку всех json-сообщений из строки            *
+// ****************************************************************************
+void Deser(String Text)
+{
+  // Преобразовываем String-ответ в chars-ответ для парсинга
+  int str_len = Text.length()+1; 
+  Serial.print("str_len: "); Serial.println(str_len);
+  char json[str_len];
+  Text.toCharArray(json, str_len);
+  // Создаем объект поиска соответствий
+  MatchState ms(json);
+  // Формируем регулярное выражение ("соответствие") для поиска json-сообщений:
+  // <Lead>{"led4":{"light":25,"time":1996},"intrv":{"mode4":6900,"img":1001,"tempvl":3003,"lumin":2002,"bar":5005}}</Lead>
+  const char * match="{[{\"a-zA-Z0-9:,%[}%]]*}";
+  // Выполняем поиск по соответствию
+  //int count = 
+  ms.GlobalMatch(match,match_callback);
+  //Serial.print("count: "); Serial.println(count);
+}
 // ***************************************************************************
 // *                       Принять сообщение по nRF24L01                     *
 // ***************************************************************************
@@ -164,7 +94,6 @@ void getradiomess()
    // Если модуль получил информацию, считываем буфер до 32 символов
    if (radio.available()) 
    { 
-      //char text[34] = {0};             // переменная, хранящая текст сообщения
       memset(text,'\0',34); 
       yield(); 
       radio.read(&text, sizeof(text)); // считали текст сообщения
@@ -187,6 +116,61 @@ void iniradio()
    radio.openReadingPipe(0, pipeIn); // открыли "трубу" чтения
    radio.startListening();           // начали прослушивать
    Serial.println("");
+}
+
+// String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}";  
+// String s_WATER = "{\"water\":{\"level\":"+String(water)+"}}";
+// String s_POWER = "{\"vcc\":{\"power\":"+String(jvcc)+"}}"; 
+
+// ****************************************************************************
+// *                          Разобрать json-сообщение                        *
+// ****************************************************************************
+void match_callback(const char * match,const unsigned int length,const MatchState & ms)
+{
+  String sjson = String(match);
+  sjson = sjson.substring(0,length);
+  // Трассируем выбранный json
+  Serial.print("sjson: "); Serial.println(sjson); 
+
+  JsonDocument doc;
+  deserializeJson(doc, sjson);
+
+  String water=doc["water"];
+  if (water != "null")
+  {
+   Serial.println("Найдена вода!!!");
+   num=7;  
+   /*
+    inlight = doc["led4"]["light"];
+    Prefs.putInt("inlight",inlight);
+    // Serial.print("Prefs.inlight: "); Serial.println(Prefs.getInt("inlight"));
+
+    intime = doc["led4"]["time"];
+    Prefs.putInt("intime",intime);
+    // Serial.print("Prefs.intime: "); Serial.println(Prefs.getInt("intime"));
+   */
+  }
+  String vcc=doc["vcc"];
+  if (vcc != "null")
+  {
+   Serial.println("Найден vcc!!!");  
+   num=6;  
+   /*
+    mode4 = doc["intrv"]["mode4"];
+    Prefs.putInt("mode4",mode4);
+    // Serial.print("Prefs.mode4: "); Serial.println(Prefs.getInt("mode4"));
+
+    img = doc["intrv"]["img"];
+    Prefs.putInt("img",img);
+    // Serial.print("Prefs.img: "); Serial.println(Prefs.getInt("img"));
+   */
+  }
+  String dht22=doc["dht22"];
+  if (dht22 != "null")
+  {
+   Serial.println("Найден dht22!!!");  
+   num=8;  
+  }
 }
 
 // ************************************************************** v17Base.h ***

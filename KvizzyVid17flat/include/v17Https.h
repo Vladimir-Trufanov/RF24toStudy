@@ -63,8 +63,7 @@ void vHttps(void* pvParameters)
 
       // Выбираем сообщение из очереди
       strcpy(tBuffer, queMessa.Receive());
-      Serial.print("Прием: ");
-      Serial.println(tBuffer);
+      Serial.print("Из очереди: "); Serial.println(tBuffer);
       String addr="https://kwinflat.ru/Vid17b/";
       //String sql=
 
