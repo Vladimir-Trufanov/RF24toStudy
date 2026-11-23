@@ -65,6 +65,8 @@ void vHttps(void* pvParameters)
       strcpy(tBuffer, queMessa.Receive());
       Serial.print("Прием: ");
       Serial.println(tBuffer);
+      String addr="https://kwinflat.ru/Vid17b/";
+      //String sql=
 
       /*
       NetworkClientSecure *client = new NetworkClientSecure;
