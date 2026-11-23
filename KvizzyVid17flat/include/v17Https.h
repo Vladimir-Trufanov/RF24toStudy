@@ -92,7 +92,10 @@ void vHttps(void* pvParameters)
           {
             HTTPClient https;
             Serial.println("[HTTPS] начат сеанс ...");
-            if (https.begin(*client, "https://kwinflat.ru/Vid17b/")) 
+            //String var="https://kwinflat.ru/Vid17b/";
+            String var="https://kwinflat.ru/State/"+parm;
+            if (https.begin(*client, var)) 
+            //if (https.begin(*client, "https://kwinflat.ru/Vid17b/")) 
             //if (https.begin(*client, url.c_str())) 
             {  
               Serial.println("[HTTPS] GET-запрос отправляется ...");
