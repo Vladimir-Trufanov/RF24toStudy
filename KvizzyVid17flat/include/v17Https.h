@@ -52,6 +52,8 @@ JJUEeKgDu+6B5dpffItKoZB0JaezPkvILFa9x8jvOOJckvB595yEunQtYQEgfn7R
 
 char tBuffer[128]; // буфер сообщения на 127 символов и завершающий ноль
 
+int HostQuery(String parm); 
+
 void vHttps(void* pvParameters) 
 {
    for ( ;; )
@@ -78,60 +80,8 @@ void vHttps(void* pvParameters)
         // https://kwinflat.ru/State/?cycle=7&num=5&ctrl=203&sjson={"trkpt":{"lat":52518611,"lon":13376111,"color":"yellow"}}
         // http://localhost:100/State/?cycle=114&num=6&ctrl=207&sjson={"dht22":{"humi":87,"tempC":264}}   
         // -------------------------------------------------------------------------------------------------------------------
-        Serial.print("Из очереди: "); Serial.println(tBuffer);
-        Serial.print("parm:       "); Serial.println(parm);
-        //String url="https://kwinflat.ru/Vid17b/"+parm;
-        String   url="http://localhost:100/Vid17b/"; //+parm;
-        //String url="http://localhost:100/State/"+parm;
-        Serial.print("url: "); Serial.println(url);
-      
-        NetworkClientSecure *client = new NetworkClientSecure;
-        if (client) 
-        {
-          client->setCACert(rootCACertificate);
-          {
-            HTTPClient https;
-            Serial.println("[HTTPS] начат сеанс ...");
-            //String var="https://kwinflat.ru/Vid17b/";
-            String var="https://kwinflat.ru/State/"+parm;
-            if (https.begin(*client, var)) 
-            //if (https.begin(*client, "https://kwinflat.ru/Vid17b/")) 
-            //if (https.begin(*client, url.c_str())) 
-            {  
-              Serial.println("[HTTPS] GET-запрос отправляется ...");
-              // Запускаем соединение и отправляем HTTP-заголовки
-              int httpCode = https.GET();
-              // Если ответ положительный (HTTP-запрос обработан сервером и получен ответ от него)
-              if (httpCode > 0) 
-              {
-                Serial.printf("[HTTPS] код ответа... code: %d\n", httpCode);
-                // 200 или 301, хорошо
-                if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) 
-                {
-                  String payload = https.getString();
-                  Serial.println("--------- Начало страницы --------------------------------------------");
-                  Serial.println(payload);
-                  Serial.println("--------- Завершение страницы ----------------------------------------");
-                }
-              } 
-              // Если ответ отрицательный (ошибка)
-              else 
-              {
-                Serial.printf("[HTTPS] GET... не прошёл, ошибка: %s\n", https.errorToString(httpCode).c_str());
-              }
-              https.end();
-            } 
-            else 
-            {
-              Serial.printf("[HTTPS] не удалось подключиться\n");
-            }
-          }
-          delete client;
-        } 
-        else 
-        {
-          Serial.println("Не удалось создать защищенного клиента");
-        }
+        Serial.print("Из очереди: "); Serial.println(parm);
+        HostQuery(parm);
       }
      
       vTaskDelay(5000/portTICK_PERIOD_MS);
@@ -143,32 +93,56 @@ void vHttps(void* pvParameters)
    }
 }
 
-
-
-// Not sure if NetworkClientSecure checks the validity date of the certificate.
-// Setting clock just to be sure...
-/*
-void setClock() 
+int HostQuery(String parm) 
 {
-  configTime(0, 0, "pool.ntp.org");
-
-  Serial.print(F("Waiting for NTP time sync: "));
-  time_t nowSecs = time(nullptr);
-  while (nowSecs < 8 * 3600 * 2) 
+  int Result=0;
+  NetworkClientSecure *client = new NetworkClientSecure;
+  if (client) 
   {
-    delay(500);
-    Serial.print(F("."));
-    yield();
-    nowSecs = time(nullptr);
+    client->setCACert(rootCACertificate);
+    {
+      HTTPClient https;
+      //Serial.println("[HTTPS] начат сеанс ...");
+      //String url="https://kwinflat.ru/Vid17b/";
+      //String url="https://kwinflat.ru/State/";
+      String url="https://kwinflat.ru/State/"+parm;
+      if (https.begin(*client, url)) 
+      {  
+        // Serial.println("[HTTPS] GET-запрос отправляется ...");
+        // Запускаем соединение и отправляем HTTP-заголовки
+        int httpCode = https.GET();
+        // Если ответ положительный (HTTP-запрос обработан сервером и получен ответ от него)
+        if (httpCode > 0) 
+        {
+          // Serial.printf("[HTTPS] код ответа... code: %d\n", httpCode);
+          // 200 или 301, хорошо
+          if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) 
+          {
+            String payload = https.getString();
+            Serial.println("--------- Начало страницы --------------------------------------------");
+            Serial.println(payload);
+            Serial.println("--------- Завершение страницы ----------------------------------------");
+          }
+        } 
+        // Если ответ отрицательный (ошибка)
+        else 
+        {
+          Serial.printf("[HTTPS] GET... не прошёл, ошибка: %s\n", https.errorToString(httpCode).c_str());
+        }
+        https.end();
+      } 
+      else 
+      {
+        Serial.printf("[HTTPS] не удалось подключиться\n");
+      }
+    }
+    delete client;
+  } 
+  else 
+  {
+    Serial.println("Не удалось создать защищенного клиента");
   }
-
-  Serial.println();
-  struct tm timeinfo;
-  gmtime_r(&nowSecs, &timeinfo);
-  Serial.print(F("Current time: "));
-  char buf[26];
-  Serial.print(asctime_r(&timeinfo, buf));
+  return Result;
 }
-*/
 
 // ************************************************************* v17Https.h ***

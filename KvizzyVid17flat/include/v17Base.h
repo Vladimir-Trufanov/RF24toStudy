@@ -3,7 +3,7 @@
  *                                  Принять сообщение по радио с нижнего уровня 
  *                                            и отправить его в очередь на сайт
  * 
- * v1.0.2, 19.11.2026                                 Автор:      Труфанов В.Е.
+ * v1.0.3, 24.11.2026                                 Автор:      Труфанов В.Е.
  * Copyright © 2026 tve                               Дата создания: 14.11.2026
 **/
 
@@ -28,7 +28,7 @@ int num;        // идентификационный номер запроса
 // Выполнить выборку всех json-сообщений из строки
 void Deser(String Text);
 // Принять сообщение по nRF24L01
-void getradiomess(); 
+bool getradiomess(); 
 // Инициировать прием сообщений по nRF24L01
 void iniradio();
 // Разобрать json-сообщение 
@@ -36,14 +36,15 @@ void match_callback(const char * match,const unsigned int length,const MatchStat
 
 void vBase(void* pvParameters) 
 {
-   for ( ;; )
-   {
-      // Отмечаем начало нового цикла задачи
-      iBase++;
-      uint32_t tTime=millis();
+  for ( ;; )
+  {
+    // Отмечаем начало нового цикла задачи
+    iBase++;
+    uint32_t tTime=millis();
 
-      // Принимаем сообщение по nRF24L01
-      getradiomess(); 
+    // Принимаем сообщение по nRF24L01
+    if (getradiomess())
+    {
       String jsonMess="{"+String(text)+"}"; 
       // Обрабатываем только поступившие сообщения
       if (jsonMess.length()>2)  
@@ -59,13 +60,15 @@ void vBase(void* pvParameters)
         String retMess=queMessa.Send(parm);
         if (retMess!=tisOk) Serial.println(retMess); 
       }
-      vTaskDelay(7500/portTICK_PERIOD_MS);
-      // Определяем время работы цикла задачи
-      tBase=millis()-tTime;
-      // Отмечаем завершение задачи для сторожевого таймера
-      finBase = true;
-      if (inumber == 2) MimicMCUhangEvent("vBase");   
-   }
+    } 
+   
+    vTaskDelay(7500/portTICK_PERIOD_MS);
+    // Определяем время работы цикла задачи
+    tBase=millis()-tTime;
+    // Отмечаем завершение задачи для сторожевого таймера
+    finBase = true;
+    if (inumber == 2) MimicMCUhangEvent("vBase");   
+  }
 }
 
 // ****************************************************************************
@@ -90,33 +93,36 @@ void Deser(String Text)
 // ***************************************************************************
 // *                       Принять сообщение по nRF24L01                     *
 // ***************************************************************************
-void getradiomess() 
+bool getradiomess() 
 {
-   // Если модуль получил информацию, считываем буфер до 32 символов
-   if (radio.available()) 
-   { 
-      memset(text,'\0',34); 
-      yield(); 
-      radio.read(&text, sizeof(text)); // считали текст сообщения
-      yield(); 
-   }
-   // Прерываем блокировку процессора ESP8266 (ESP32)
-   // (на мгновение передаём управление фоновым функциям Wi-Fi и предотвращаем перезагрузку
-   // от сторожевого таймера)
-   yield(); 
+  bool Result=false;
+  // Если модуль получил информацию, считываем буфер 
+  if (radio.available()) 
+  { 
+    memset(text,'\0',34); 
+    yield(); 
+    radio.read(&text, sizeof(text)); // считали текст сообщения
+    yield(); 
+    Result=true;
+  }
+  // Прерываем блокировку процессора ESP8266 (ESP32)
+  // (на мгновение передаём управление фоновым функциям Wi-Fi и предотвращаем перезагрузку
+  // от сторожевого таймера)
+  yield(); 
+  return Result;
 }
 // ***************************************************************************
 // *                   Инициировать прием сообщений по nRF24L01              *
 // ***************************************************************************
 void iniradio() 
 {
-   Serial.println("Начало прослушивания !!!");      
-   radio.begin();                    // инициировали работу nRF24L01
-   radio.setChannel(0x6f);           // установили канал
+  Serial.println("Начало прослушивания !!!");      
+  radio.begin();                    // инициировали работу nRF24L01
+  radio.setChannel(0x6f);           // установили канал
 
-   radio.openReadingPipe(0, pipeIn); // открыли "трубу" чтения
-   radio.startListening();           // начали прослушивать
-   Serial.println("");
+  radio.openReadingPipe(0, pipeIn); // открыли "трубу" чтения
+  radio.startListening();           // начали прослушивать
+  Serial.println("");
 }
 
 // String s_DHT11 = "{\"dht22\":{\"humi\":"+String(jhumi)+",\"tempC\":"+String(jtempC)+"}}";  
