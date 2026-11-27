@@ -40,6 +40,12 @@ TAttachSNTP oSNTP;
 void setup() 
 {
   Serial.begin(115200);
+
+  // Получаем значение напряжения источника питания схемы (Вольт) 
+  Serial.println("\n---------------- v1.2.9, 21.11.2026 ----------------");
+  float Vbattf = getVbattf();
+  Serial.println(Vbattf, 3);
+
   vTaskDelay(5000/portTICK_PERIOD_MS);
   
   // Публикуем причину предыдущего сброса
@@ -156,7 +162,7 @@ void loop()
     ESP.restart();
   }
 
-  Serial.println();
+  //Serial.println();
   //saymem();
   vTaskDelay(1500/portTICK_PERIOD_MS);
 

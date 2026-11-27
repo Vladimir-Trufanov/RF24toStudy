@@ -17,7 +17,7 @@
 
 #include <GyverWDT.h>
 
-#include <with_nRF24L01.h>
+//#include <with_nRF24L01.h>
 
 #include <with_DHT1122.h>
 #include <Vid17baseCommon.h> 
@@ -25,7 +25,7 @@
 
 // Подключаем объекты для работы с радиомодулем
 RF24 radio(6,7);                  // указали номера выводов nRF24L01: CE и CSN
-TnRF24L01 nRF(radio);
+//TnRF24L01 nRF(radio);
 // Подключаем объект для чтения с датчика температуры и влажности
 Tdht1122 dhtv;
 
@@ -119,9 +119,10 @@ void loop()
   if ((millis()-timeDHT)>timeoutDHT)
   {
     iLoop++;
-    Serial.print("\nLoop = "); Serial.println(iLoop);  
-    Serial.print("\npos  = "); Serial.println(ipos);  
+    //Serial.print("\nLoop = "); Serial.println(iLoop);  
+    //Serial.print("\npos  = "); Serial.println(ipos);  
 
+    /*
     if (ipos==0)
     {
       // Формируем и отправляем json-сообщение по температуре и влажности 
@@ -137,9 +138,10 @@ void loop()
     else
     {
       // Формируем и отправляем сообщения по напряжению питания 
+    */
       makePower(radio); 
-      ipos=0;
-    }
+    //  ipos=0;
+    //}
     timeDHT = millis();
   }  
   delay(500); 

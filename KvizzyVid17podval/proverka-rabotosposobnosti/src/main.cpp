@@ -49,7 +49,11 @@
   }
 #endif
 
-RF24 radio(10,7);        // 10=CE, 7=CS
+// Для ESP07
+RF24 radio(5,15);         // 5=CE, 15=CS
+// Для NodeMCU-32S
+// RF24 radio(22,5);      // указали номера выводов nRF24L01: CE и CSN
+
 TnRF24L01 nRF(radio);
 
 //const uint8_t num_channels = 128;

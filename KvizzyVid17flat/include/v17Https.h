@@ -9,6 +9,7 @@
 #pragma once            
 #include <Arduino.h>
 #include "v17WdtTask.h"  
+#include "v17Power.h"  // 5-3511 определить напряжение питания и отправить его в очередь на сайт
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -61,7 +62,6 @@ void vHttps(void* pvParameters)
       // Отмечаем начало нового цикла задачи
       iHttps++;
       uint32_t tTime=millis();
-      printTime(); 
 
       // Выбираем сообщение из очереди
       strcpy(tBuffer, queMessa.Receive());
@@ -80,7 +80,11 @@ void vHttps(void* pvParameters)
         // https://kwinflat.ru/State/?cycle=7&num=5&ctrl=203&sjson={"trkpt":{"lat":52518611,"lon":13376111,"color":"yellow"}}
         // http://localhost:100/State/?cycle=114&num=6&ctrl=207&sjson={"dht22":{"humi":87,"tempC":264}}   
         // -------------------------------------------------------------------------------------------------------------------
-        Serial.print("Из очереди: "); Serial.println(parm);
+        //Serial.print("Из очереди: "); Serial.println(parm);
+        printTime(); 
+        float Vbattf = getVbattf();
+        Serial.println(Vbattf, 3);
+
         HostQuery(parm);
       }
      
